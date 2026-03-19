@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, type CSSProperties } from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import type {
   Message,
@@ -15,12 +15,15 @@ import {
   streamChat,
   stopChatRun,
 } from "@/services/api";
+import { useTheme } from "@/hooks/useTheme";
+import { getUiThemeVars } from "@/theme/uiTheme";
 import ChatSidebar from "./components/ChatSidebar";
 import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
 export default function ChatView() {
+  const { theme } = useTheme();
   const { id: urlId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,24 +35,16 @@ export default function ChatView() {
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
   const [thinkingEnabled, setThinkingEnabled] = useState(false);
 
-  // Refs to track streaming state without stale closures
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
   const reasoningBufferRef = useRef("");
   const runIdRef = useRef<string | null>(null);
-  // skipUrlLoadRef: set to true before navigating during streaming to avoid
-  // re-loading messages from the server when the URL changes mid-stream
   const skipUrlLoadRef = useRef(false);
   const activeIdRef = useRef<string | null>(urlId ?? null);
-  // autoSentRef: prevents double-firing the initial message from /new
   const autoSentRef = useRef(false);
-  // isFirstRoundRef: true when the current round is the first message of the conversation
-  // (title is generated async on backend and must be fetched after done)
   const isFirstRoundRef = useRef(false);
-  // streamingConvIdRef: conversation id confirmed by the SSE conversation event
   const streamingConvIdRef = useRef<string | null>(null);
 
-  /** Map API messages to frontend Message shape */
   const mapAPIMessages = useCallback(
     (convId: string, msgs: MessageAPI[]): Message[] =>
       msgs.map((m) => ({
@@ -64,41 +59,41 @@ export default function ChatView() {
     [],
   );
 
-  // Keep activeIdRef in sync for use inside streaming callbacks
   useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
 
-  // Load conversation list once on mount; if no id in URL, redirect to first conversation
   useEffect(() => {
     getConversations()
       .then((list) => {
         const convs = list.map((c) => ({ id: c.id, title: c.title }));
         setConversations(convs);
-        // Skip redirect if we came from /new with an initial message to send
         if (!urlId && convs.length > 0 && !autoSentRef.current) {
           navigate(`/chat/${convs[0].id}`, { replace: true });
         }
       })
       .catch(console.error);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [navigate, urlId]);
 
-  // Load messages whenever the URL conversation id changes
   useEffect(() => {
     if (!urlId) {
-      setActiveId(null);
-      setMessages([]);
+      queueMicrotask(() => {
+        setActiveId(null);
+        setMessages([]);
+      });
       return;
     }
-    // Navigation was triggered internally (e.g. during streaming) — skip server fetch
     if (skipUrlLoadRef.current) {
       skipUrlLoadRef.current = false;
-      setActiveId(urlId);
+      queueMicrotask(() => {
+        setActiveId(urlId);
+      });
       return;
     }
-    setActiveId(urlId);
-    setMessages([]);
+    queueMicrotask(() => {
+      setActiveId(urlId);
+      setMessages([]);
+    });
     getConversationDetail(urlId)
       .then((detail) => setMessages(mapAPIMessages(detail.id, detail.messages)))
       .catch(console.error);
@@ -121,14 +116,12 @@ export default function ChatView() {
       streamingMsgIdRef.current = null;
       reasoningBufferRef.current = "";
       streamingConvIdRef.current = null;
-      // First round = no assistant messages exist yet in this conversation
       isFirstRoundRef.current = !messages.some((m) => m.role === "assistant");
 
       streamChat(activeId, content, thinkingEnabled, {
         onConversation: (conversationId, title, runId) => {
           runIdRef.current = runId;
           streamingConvIdRef.current = conversationId;
-          // If this is a brand-new conversation (activeId was null), navigate to its URL
           if (activeIdRef.current === null) {
             skipUrlLoadRef.current = true;
             navigate(`/chat/${conversationId}`, { replace: true });
@@ -195,7 +188,6 @@ export default function ChatView() {
           );
         },
         onThoughtStep: (step: ThoughtStep) => {
-          // thought_step 优先于 chunk 到达，若气泡未创建则创建空气泡
           if (!streamingMsgIdRef.current) {
             const msgId = `ai-${Date.now()}`;
             streamingMsgIdRef.current = msgId;
@@ -227,12 +219,10 @@ export default function ChatView() {
           );
         },
         onTraceStep: (step: TraceStep) => {
-          // trace_step 可能先于首个 chunk 到达（complex/thinking 路径）
-          // 若消息气泡还未创建，立即创建一个空内容的 assistant 气泡
           if (!streamingMsgIdRef.current) {
             const msgId = `ai-${Date.now()}`;
             streamingMsgIdRef.current = msgId;
-            firstChunkRef.current = true; // 防止 onChunk 再次创建气泡
+            firstChunkRef.current = true;
             setIsTyping(false);
             setStreamingMsgId(msgId);
             setMessages((prev) => [
@@ -259,17 +249,13 @@ export default function ChatView() {
             }),
           );
         },
-        onTraceDone: () => {
-          // Trace complete — no special handling needed
-        },
+        onTraceDone: () => {},
         onDone: () => {
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
           reasoningBufferRef.current = "";
           runIdRef.current = null;
-          // After the first round, the backend generates the title asynchronously.
-          // Fetch the updated title once it's ready.
           if (isFirstRoundRef.current && streamingConvIdRef.current) {
             const convId = streamingConvIdRef.current;
             isFirstRoundRef.current = false;
@@ -317,7 +303,6 @@ export default function ChatView() {
     navigate("/new");
   }, [navigate]);
 
-  // Auto-send initial message when navigated from /new page
   useEffect(() => {
     if (autoSentRef.current || urlId) return;
     const state = location.state as {
@@ -328,13 +313,12 @@ export default function ChatView() {
     autoSentRef.current = true;
     const msg = state.initialMessage;
     const enableThinking = state.thinkingEnabled ?? false;
-    // Clear navigation state so back-navigation doesn't re-trigger
     navigate(location.pathname, { replace: true, state: null });
-    if (enableThinking) setThinkingEnabled(true);
-    // Defer one tick so state flush completes
-    setTimeout(() => handleSend(msg), 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setTimeout(() => {
+      if (enableThinking) setThinkingEnabled(true);
+      handleSend(msg);
+    }, 0);
+  }, [handleSend, location.pathname, location.state, navigate, urlId]);
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -369,19 +353,16 @@ export default function ChatView() {
     [activeId, navigate],
   );
 
-  const handleRenameConversation = useCallback(
-    async (id: string, title: string) => {
-      try {
-        await updateConversationTitle(id, title);
-        setConversations((prev) =>
-          prev.map((c) => (c.id === id ? { ...c, title } : c)),
-        );
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    [],
-  );
+  const handleRenameConversation = useCallback(async (id: string, title: string) => {
+    try {
+      await updateConversationTitle(id, title);
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, title } : c)),
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
 
   const handleRetryMessage = useCallback(
     (msgId: string) => {
@@ -396,7 +377,6 @@ export default function ChatView() {
         userContent = msg.content;
         cutIdx = idx;
       } else {
-        // Find the closest preceding user message
         let userIdx = idx - 1;
         while (userIdx >= 0 && messages[userIdx].role !== "user") userIdx--;
         if (userIdx < 0) return;
@@ -420,8 +400,14 @@ export default function ChatView() {
     [messages, handleSend],
   );
 
+  const pageStyle = {
+    ...getUiThemeVars(theme),
+    color: "var(--text-base)",
+    fontFamily: '"Sora", "Segoe UI", sans-serif',
+  } as CSSProperties;
+
   return (
-    <div className="chat-page">
+    <div className="flex h-dvh overflow-hidden" style={pageStyle}>
       <ChatSidebar
         conversations={conversations}
         activeId={activeId ?? ""}
@@ -430,12 +416,16 @@ export default function ChatView() {
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
       />
-      <main className="chat-main">
+      <main
+        className="flex min-w-0 flex-1 flex-col overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(140deg, var(--bg-start), var(--bg-mid) 46%, var(--bg-end))",
+        }}
+      >
         <ChatHeader
           title={activeConv?.title ?? ""}
-          onRename={(title) =>
-            activeId && handleRenameConversation(activeId, title)
-          }
+          onRename={(title) => activeId && handleRenameConversation(activeId, title)}
           thinkingEnabled={thinkingEnabled}
         />
         <MessageList
@@ -457,3 +447,4 @@ export default function ChatView() {
     </div>
   );
 }
+

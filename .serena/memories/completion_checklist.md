@@ -1,0 +1,4 @@
+- 完成任务前至少运行 `cmd /c pnpm lint`。
+- 若改动了受影响逻辑，补跑对应的 `node tests/<name>.test.cjs` 回归测试；聊天停止、列表渲染、空闲态、SSE 相关改动优先补测。
+- 若修改接口字段或时序，核对 `docs/api.md`，特别是 `/api/chat/stream`、`run_id` 和停止接口约定。
+- 若有 UI 改动，PR/交付说明里应包含手动验证步骤，必要时附截图或录屏。

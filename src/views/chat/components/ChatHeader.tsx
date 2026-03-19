@@ -6,10 +6,7 @@ interface Props {
   thinkingEnabled?: boolean;
 }
 
-export default function ChatHeader({
-  title,
-  onRename,
-}: Props) {
+export default function ChatHeader({ title, onRename }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -20,9 +17,7 @@ export default function ChatHeader({
   };
 
   useEffect(() => {
-    if (editing) {
-      inputRef.current?.select();
-    }
+    if (editing) inputRef.current?.select();
   }, [editing]);
 
   const commit = () => {
@@ -34,12 +29,12 @@ export default function ChatHeader({
   };
 
   return (
-    <header className="header">
-      <div className="header-left">
+    <header className="flex shrink-0 items-center justify-between border-b border-(--header-border) bg-transparent px-5 py-3">
+      <div className="flex min-w-0 items-center gap-1.5">
         {editing ? (
           <input
             ref={inputRef}
-            className="header-title-input"
+            className="min-w-0 w-60 rounded-md border border-(--surface-border) bg-(--surface) px-2 py-0.5 text-[0.875rem] font-medium text-(--text-base) outline-none focus:border-(--highlight)"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}
@@ -51,7 +46,7 @@ export default function ChatHeader({
         ) : (
           <>
             <h2
-              className="header-title"
+              className="cursor-default overflow-hidden text-ellipsis whitespace-nowrap text-[0.875rem] font-medium text-(--text-base) select-none"
               onDoubleClick={startEdit}
               title={title ? "双击编辑标题" : undefined}
             >
@@ -67,7 +62,7 @@ export default function ChatHeader({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ color: "var(--text-muted)", marginTop: 2 }}
+                className="mt-0.5 text-(--text-muted)"
               >
                 <polyline points="6 9 12 15 18 9" />
               </svg>
@@ -78,3 +73,4 @@ export default function ChatHeader({
     </header>
   );
 }
+

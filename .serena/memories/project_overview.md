@@ -1,0 +1,4 @@
+- 项目目的：Astral AI Web，是一个基于 React 19 + TypeScript + Vite 的聊天前端，包含首页、新建对话页、会话列表、流式聊天、停止生成、会话重命名/删除，以及 thought_step / trace_step 展示。
+- 技术栈：React 19、TypeScript、Vite 8、React Router 7、Tailwind CSS 4、React Markdown + remark-gfm、Redux Toolkit。
+- 代码结构：`src/App.tsx` 为首页，`src/views/chat/` 为聊天页和子组件，`src/components/` 为通用组件，`src/services/api.ts` 为后端接口与 SSE 客户端，`src/types/` 放类型，`public/` 放静态资源，`docs/api.md` 为接口契约，`tests/` 为源码级回归测试。
+- 样式现状：入口样式在 `src/index.css`，项目已接入 Tailwind CSS 4，但同时存在大量集中式全局样式。

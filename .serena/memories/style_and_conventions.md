@@ -1,0 +1,5 @@
+- 语言与沟通：仓库协作要求所有回复、实施方案与任务清单使用中文；固定要求为“Implementation Plan, Task List and Thought in Chinese”。
+- 开发原则：KISS、避免过度工程化、以事实为准；先调研澄清，再设计/编码；推进顺序为“构思方案 -> 提请审核 -> 分解为具体任务”。
+- 代码风格：TypeScript ES modules，2 空格缩进，双引号风格；React 组件使用 PascalCase，Hook 使用 `useXxx`，普通工具/服务文件用 camelCase。
+- 结构约束：优先复用现有目录边界，不要把聊天页逻辑散落到无关模块；`dist/` 不手动编辑；不要提交 `.env` 或凭据。
+- Git 约定：可采用 Conventional Commits。

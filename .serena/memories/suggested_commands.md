@@ -1,0 +1,8 @@
+- 安装依赖：`cmd /c pnpm install`
+- 启动开发：`cmd /c pnpm dev`
+- 生产构建：`cmd /c pnpm build`
+- 代码检查：`cmd /c pnpm lint`
+- 预览构建：`cmd /c pnpm preview`
+- 运行回归测试：`node tests/chat-stop-reset.test.cjs`
+- 其他现有测试：`node tests/message-bubble-style.test.cjs`、`node tests/message-list-animation.test.cjs`、`node tests/message-list-idle-logo.test.cjs`
+- Windows 常用命令：`Get-ChildItem` 列目录，`Get-Content` 读文件，`rg`/`rg --files` 搜索文本和文件，`git status` 查看变更。

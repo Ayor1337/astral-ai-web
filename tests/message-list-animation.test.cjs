@@ -7,25 +7,18 @@ const React = require("react");
 const { renderToStaticMarkup } = require("react-dom/server");
 
 const projectRoot = path.resolve(__dirname, "..");
-const messageListPath = path.join(
+const typingLogoPath = path.join(
   projectRoot,
-  "src/views/chat/components/MessageList.tsx",
+  "src/views/chat/components/TypingLogo.tsx",
 );
 const indexCssPath = path.join(projectRoot, "src/index.css");
 
-const assistantMessage = {
-  id: "assistant-1",
-  role: "assistant",
-  content: "Astral 正在输出。",
-  ts: "2026-03-19T08:00:00.000Z",
-};
-
-function loadMessageListComponent() {
+function loadTypingLogoComponent() {
   const source = fs
-    .readFileSync(messageListPath, "utf8")
+    .readFileSync(typingLogoPath, "utf8")
     .replace(
-      'import MessageBubble from "./MessageBubble";',
-      "const MessageBubble = () => null;",
+      'import { THINKING_LOGO_PATH, STREAMING_LOGO_PATH } from "./Idle";',
+      'const THINKING_LOGO_PATH = "M0 0"; const STREAMING_LOGO_PATH = "M0 0";',
     );
 
   const { outputText } = ts.transpileModule(source, {
@@ -35,31 +28,24 @@ function loadMessageListComponent() {
       target: ts.ScriptTarget.ES2022,
       esModuleInterop: true,
     },
-    fileName: messageListPath,
+    fileName: typingLogoPath,
   });
 
-  const compiledModule = new Module.Module(messageListPath, module);
-  compiledModule.filename = messageListPath;
-  compiledModule.paths = Module.Module._nodeModulePaths(path.dirname(messageListPath));
-  compiledModule._compile(outputText, messageListPath);
+  const compiledModule = new Module.Module(typingLogoPath, module);
+  compiledModule.filename = typingLogoPath;
+  compiledModule.paths = Module.Module._nodeModulePaths(path.dirname(typingLogoPath));
+  compiledModule._compile(outputText, typingLogoPath);
   return compiledModule.exports.default;
 }
 
-function renderMessageList(props = {}) {
-  const MessageList = loadMessageListComponent();
+function renderTypingLogo(state) {
+  const TypingLogo = loadTypingLogoComponent();
   return renderToStaticMarkup(
-    React.createElement(MessageList, {
-      messages: [assistantMessage],
-      isTyping: false,
-      streamingMsgId: null,
-      isBusy: false,
-      ...props,
+    React.createElement(TypingLogo, {
+      state,
+      onIdleClick: () => {},
     }),
   );
-}
-
-function countOccurrences(markup, needle) {
-  return markup.split(needle).length - 1;
 }
 
 function runCase(name, fn) {
@@ -73,45 +59,40 @@ function runCase(name, fn) {
 }
 
 runCase("空闲时也显示底部共享 Astral logo，但不播放动画", () => {
-  const markup = renderMessageList();
+  const markup = renderTypingLogo("idle");
 
-  assert.equal(countOccurrences(markup, `class="typing-logo"`), 1);
-  assert.equal(markup.includes("typing-logo--pulse"), false);
-  assert.equal(markup.includes("typing-logo--streaming"), false);
+  assert.equal(markup.includes('aria-label="触发思考动画"'), true);
+  assert.equal(markup.includes('data-typing-state="idle"'), true);
+  assert.equal(markup.includes('data-typing-viewbox="0 0 100 700"'), true);
   assert.equal(markup.includes('viewBox="0 0 100 700"'), true);
   assert.equal(markup.includes('viewBox="0 0 100 800"'), false);
 });
 
 runCase("思考态只在底部共享位置渲染 7 帧动画", () => {
-  const markup = renderMessageList({
-    isTyping: true,
-    streamingMsgId: assistantMessage.id,
-  });
+  const markup = renderTypingLogo("thinking");
 
-  assert.equal(countOccurrences(markup, `class="typing-logo typing-logo--pulse"`), 1);
-  assert.equal(markup.includes("typing-logo--pulse"), true);
-  assert.equal(markup.includes("typing-logo--streaming"), false);
+  assert.equal(markup.includes('data-typing-state="thinking"'), true);
+  assert.equal(markup.includes('aria-label="AI 正在思考"'), true);
+  assert.equal(markup.includes('data-typing-viewbox="0 0 100 700"'), true);
   assert.equal(markup.includes('viewBox="0 0 100 700"'), true);
   assert.equal(markup.includes('viewBox="0 0 100 800"'), false);
 });
 
 runCase("流式态在同一底部位置切换为 8 帧动画", () => {
-  const markup = renderMessageList({
-    streamingMsgId: assistantMessage.id,
-    isBusy: true,
-  });
+  const markup = renderTypingLogo("streaming");
 
-  assert.equal(countOccurrences(markup, `class="typing-logo typing-logo--streaming"`), 1);
-  assert.equal(markup.includes("typing-logo--pulse"), false);
-  assert.equal(markup.includes("typing-logo--streaming"), true);
+  assert.equal(markup.includes('data-typing-state="streaming"'), true);
+  assert.equal(markup.includes('aria-label="AI 正在输出"'), true);
+  assert.equal(markup.includes('data-typing-viewbox="0 0 100 800"'), true);
   assert.equal(markup.includes('viewBox="0 0 100 700"'), false);
   assert.equal(markup.includes('viewBox="0 0 100 800"'), true);
 });
 
-runCase("样式改为共享流式动画类，并移除正文内联 streaming-logo 样式入口", () => {
+runCase("index.css 只保留 Tailwind 入口，不再承载 typing-logo 业务样式", () => {
   const css = fs.readFileSync(indexCssPath, "utf8");
 
-  assert.equal(css.includes(".typing-logo--streaming"), true);
+  assert.equal(css.trim(), '@import "tailwindcss";');
+  assert.equal(css.includes(".typing-logo"), false);
   assert.equal(css.includes(".streaming-logo {"), false);
 });
 

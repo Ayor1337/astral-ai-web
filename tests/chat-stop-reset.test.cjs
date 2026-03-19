@@ -11,9 +11,14 @@ assert.equal(
   "空闲态常驻 logo 后，不应再用 showBottomAnimation 控制底部 logo 是否渲染",
 );
 assert.equal(
-  source.includes(': "typing-logo";'),
+  source.includes('      : "idle";'),
   true,
-  "空闲态应回退到静态 typing-logo 容器",
+  "空闲态应回退到 idle typing state",
+);
+assert.equal(
+  source.includes("const typingState = showThinkingAnimation"),
+  true,
+  "底部 Astral logo 应统一由 typingState 驱动",
 );
 
 console.log("PASS 底部 Astral logo 常驻逻辑存在");

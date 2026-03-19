@@ -1,6 +1,20 @@
-import { useEffect, useState } from "react";
+import {
+  createContext,
+  createElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Theme } from "@/theme/uiTheme";
 
-type Theme = "dark" | "light";
+interface ThemeContextValue {
+  theme: Theme;
+  toggle: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function getInitialTheme(): Theme {
   try {
@@ -14,7 +28,7 @@ function getInitialTheme(): Theme {
     : "dark";
 }
 
-export function useTheme() {
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
@@ -26,7 +40,21 @@ export function useTheme() {
     }
   }, [theme]);
 
-  const toggle = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const value = useMemo(
+    () => ({
+      theme,
+      toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+    }),
+    [theme],
+  );
 
-  return { theme, toggle };
+  return createElement(ThemeContext.Provider, { value }, children);
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+  return context;
 }

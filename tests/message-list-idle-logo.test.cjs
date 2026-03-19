@@ -21,9 +21,9 @@ assert.equal(
   "点击 idle logo 后应触发思考动画",
 );
 assert.equal(
-  source.includes("className=\"typing-logo-button\""),
+  source.includes("<TypingLogo state={typingState} onIdleClick={handleIdleLogoClick} />"),
   true,
-  "idle logo 应渲染为可点击按钮",
+  "idle logo 应通过独立 TypingLogo 组件渲染并接入点击处理",
 );
 
 console.log("PASS idle logo 可点击触发思考动画的源码入口存在");

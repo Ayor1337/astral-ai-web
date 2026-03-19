@@ -6,6 +6,7 @@ interface Props {
   disabled?: boolean;
   thinkingEnabled?: boolean;
   onThinkingToggle?: () => void;
+  centered?: boolean;
 }
 
 export default function ChatInput({
@@ -14,6 +15,7 @@ export default function ChatInput({
   disabled,
   thinkingEnabled,
   onThinkingToggle,
+  centered,
 }: Props) {
   const [value, setValue] = useState("");
   const [modelOpen, setModelOpen] = useState(false);
@@ -52,43 +54,33 @@ export default function ChatInput({
   };
 
   return (
-    <div className="input-area">
-      <div className="input-box">
+    <div className={`w-full shrink-0 ${centered ? "mx-auto px-0 pb-0" : "mx-auto max-w-[768px] px-6 pb-3"}`}>
+      <div className="flex flex-col gap-2 rounded-[18px] border border-[var(--input-border)] bg-[var(--input-bg)] px-[14px] pb-2 pt-3 backdrop-blur-[10px] transition-colors duration-200 focus-within:border-[var(--highlight)]">
         <textarea
           ref={textareaRef}
-          className="input-textarea"
+          className="max-h-36 w-full resize-none overflow-y-auto border-none bg-transparent text-[0.9375rem] leading-6 text-[var(--text-base)] outline-none placeholder:text-[var(--text-footer)] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[var(--surface-border)] [&::-webkit-scrollbar-track]:bg-transparent"
           placeholder="Reply..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
         />
-        <div className="input-toolbar">
+        <div className="flex items-center justify-between">
           <button
-            className="input-attach-btn"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--input-border)] bg-transparent text-[var(--text-muted)] transition-[background,border-color] duration-100 hover:border-[var(--text-muted)]"
             type="button"
             title="Attach file"
           >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </button>
 
-          <div className="input-right">
-            {/* Model selector + dropdown */}
-            <div ref={dropdownWrapRef} className="model-selector-wrap">
+          <div className="flex items-center gap-2.5">
+            <div ref={dropdownWrapRef} className="relative">
               <button
-                className="input-model-selector"
+                className="flex items-center gap-1 border-none bg-transparent p-0 text-[0.75rem] text-[var(--sidebar-section-text)] transition-colors duration-100 hover:text-[var(--text-muted)]"
                 type="button"
                 onClick={() => setModelOpen((v) => !v)}
                 aria-expanded={modelOpen}
@@ -103,88 +95,53 @@ export default function ChatInput({
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  style={{
-                    transform: modelOpen ? "rotate(180deg)" : "none",
-                    transition: "transform 180ms ease",
-                  }}
+                  className={`transition-transform duration-180 ${modelOpen ? "rotate-180" : ""}`}
                 >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
 
               {modelOpen && (
-                <div className="model-dropdown">
-                  {/* Current model */}
-                  <div className="model-dropdown-item model-dropdown-item--active">
-                    <div className="model-dropdown-item-row">
-                      <span className="model-dropdown-item-name">
-                        Minimax-M2.7
-                      </span>
-                      <svg
-                        className="model-dropdown-check"
-                        width="15"
-                        height="15"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
+                <div className="absolute bottom-[calc(100%+10px)] right-0 z-[200] min-w-[292px] rounded-[14px] border border-[var(--surface-border)] bg-[var(--surface-bg2)] p-1.5 shadow-[0_8px_32px_var(--surface-shadow),0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur-[20px]">
+                  <div className="rounded-lg bg-[var(--surface-active)] px-2.5 pb-1.5 pt-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[0.875rem] font-medium text-[var(--text-base)]">Minimax-M2.7</span>
+                      <svg className="shrink-0 text-[#007aff]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </div>
-                    <p className="model-dropdown-item-desc">
-                      Most efficient for everyday tasks
-                    </p>
+                    <p className="mt-0.5 text-[0.75rem] text-[var(--text-muted)]">Most efficient for everyday tasks</p>
                   </div>
 
-                  <div className="model-dropdown-divider" />
+                  <div className="mx-0.5 my-1 h-px bg-[var(--border)]" />
 
-                  {/* Extended thinking toggle */}
-                  <div className="model-toggle-row">
-                    <div className="model-toggle-info">
-                      <span className="model-toggle-label">
-                        Extended thinking
-                      </span>
-                      <span className="model-toggle-desc">
-                        Think longer for complex tasks
-                      </span>
+                  <div className="flex items-center justify-between gap-3 rounded-lg px-2.5 py-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-[0.875rem] font-medium text-[var(--text-base)]">Extended thinking</span>
+                      <span className="text-[0.75rem] text-[var(--text-muted)]">Think longer for complex tasks</span>
                     </div>
-                    <label
-                      className="toggle-switch"
-                      title="Toggle extended thinking"
-                    >
+                    <label className="relative inline-flex cursor-pointer shrink-0" title="Toggle extended thinking">
                       <input
                         type="checkbox"
                         checked={thinkingEnabled ?? false}
                         onChange={() => onThinkingToggle?.()}
+                        className="peer sr-only"
                       />
-                      <span className="toggle-track">
-                        <span className="toggle-thumb" />
+                      <span className={`relative h-[26px] w-11 rounded-[13px] transition-colors duration-200 ${(thinkingEnabled ?? false) ? "bg-[#007aff]" : "bg-[rgba(120,120,128,0.32)]"}`}>
+                        <span className={`absolute left-[2px] top-[2px] h-[22px] w-[22px] rounded-full bg-white shadow-[0_1px_4px_rgba(0,0,0,0.3),0_1px_2px_rgba(0,0,0,0.2)] transition-transform duration-200 ${(thinkingEnabled ?? false) ? "translate-x-[18px]" : "translate-x-0"}`} />
                       </span>
                     </label>
                   </div>
 
-                  <div className="model-dropdown-divider" />
+                  <div className="mx-0.5 my-1 h-px bg-[var(--border)]" />
 
-                  {/* More models placeholder */}
                   <button
-                    className="model-dropdown-more"
+                    className="flex w-full cursor-not-allowed items-center justify-between rounded-lg bg-transparent px-2.5 py-2 text-left text-[0.875rem] text-[var(--text-base)] opacity-45"
                     type="button"
                     disabled
                   >
                     More models
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
                   </button>
@@ -194,38 +151,24 @@ export default function ChatInput({
 
             {disabled ? (
               <button
-                className="input-stop-btn"
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[var(--input-send-bg)] text-[var(--text-primary)] transition duration-180 hover:scale-105 hover:opacity-80"
                 onClick={onStop}
                 aria-label="停止生成"
                 type="button"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                   <rect x="3" y="3" width="10" height="10" rx="2" />
                 </svg>
               </button>
             ) : (
               <button
-                className="input-send-btn"
+                className="flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[var(--input-send-bg)] text-[var(--text-muted)] transition duration-180 hover:scale-105 hover:opacity-80 disabled:cursor-not-allowed disabled:bg-[var(--input-send-disabled)] disabled:text-[var(--text-footer)] disabled:opacity-50"
                 onClick={handleSend}
                 disabled={!value.trim()}
                 aria-label="发送"
                 type="button"
               >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="22" y1="2" x2="11" y2="13" />
                   <polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
@@ -234,7 +177,7 @@ export default function ChatInput({
           </div>
         </div>
       </div>
-      <p className="input-disclaimer">
+      <p className={`mt-2 text-center text-[0.6875rem] text-[var(--disclaimer-text)] ${centered ? "px-2" : "px-0"}`}>
         Astral AI is AI and can make mistakes. Please double-check responses.
       </p>
     </div>

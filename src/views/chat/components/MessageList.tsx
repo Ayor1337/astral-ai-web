@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Message } from "@/types/types";
 import MessageBubble from "./MessageBubble";
-import { THINKING_LOGO_PATH, STREAMING_LOGO_PATH } from "./Idle";
+import TypingLogo from "./TypingLogo";
 
 interface Props {
   messages: Message[];
@@ -35,7 +35,11 @@ export default function MessageList({
     Boolean(isTyping) || (isIdleThinking && streamingMsgId == null);
   const showStreamingAnimation =
     !isTyping && !isIdleThinking && streamingMsgId != null;
-  const showIdleLogo = !showThinkingAnimation && !showStreamingAnimation;
+  const typingState = showThinkingAnimation
+    ? "thinking"
+    : showStreamingAnimation
+      ? "streaming"
+      : "idle";
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,29 +82,14 @@ export default function MessageList({
     };
   }, []);
 
-  const animationClassName = showThinkingAnimation
-    ? "typing-logo typing-logo--pulse"
-    : showStreamingAnimation
-      ? "typing-logo typing-logo--streaming"
-      : "typing-logo";
-  const animationLabel = showThinkingAnimation
-    ? "AI 正在思考"
-    : showStreamingAnimation
-      ? "AI 正在输出"
-      : undefined;
-  const animationLive = showIdleLogo ? undefined : "polite";
-  const animationViewBox = showStreamingAnimation
-    ? "0 0 100 800"
-    : "0 0 100 700";
-  const animationPath = showStreamingAnimation
-    ? STREAMING_LOGO_PATH
-    : THINKING_LOGO_PATH;
-
   return (
-    <div ref={containerRef} className="msg-list chat-scroll">
-      <div className="msg-list-inner">
+    <div
+      ref={containerRef}
+      className="relative flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-(--surface-border) [&::-webkit-scrollbar-track]:bg-transparent"
+    >
+      <div className="mx-auto flex max-w-180 flex-col gap-5 px-6 pb-4 pt-8">
         {messages.length === 0 && !isTyping && (
-          <div className="chat-empty">
+          <div className="pointer-events-none flex flex-col items-center justify-center gap-4 px-6 pb-10 pt-20 text-center select-none">
             <svg
               width="32"
               height="32"
@@ -110,13 +99,16 @@ export default function MessageList({
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{ color: "var(--text-subtle)", opacity: 0.5 }}
+              className="opacity-50"
+              style={{ color: "var(--text-subtle)" }}
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
             <div>
-              <p className="chat-empty-title">开始对话</p>
-              <p className="chat-empty-subtitle">
+              <p className="m-0 text-[1.0625rem] font-medium text-(--text-muted)">
+                开始对话
+              </p>
+              <p className="m-0 max-w-65 text-[0.875rem] leading-[1.6] text-(--text-subtle)">
                 发送消息以开始与 Astral AI 交流
               </p>
             </div>
@@ -135,39 +127,8 @@ export default function MessageList({
           />
         ))}
 
-        <div className="msg-row msg-row-ai">
-          {showIdleLogo ? (
-            <button
-              type="button"
-              className="typing-logo-button"
-              onClick={handleIdleLogoClick}
-              aria-label="触发思考动画"
-            >
-              <div className={animationClassName} aria-live={animationLive}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox={animationViewBox}
-                  fill="currentColor"
-                >
-                  <path d={animationPath} />
-                </svg>
-              </div>
-            </button>
-          ) : (
-            <div
-              className={animationClassName}
-              aria-label={animationLabel}
-              aria-live={animationLive}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox={animationViewBox}
-                fill="currentColor"
-              >
-                <path d={animationPath} />
-              </svg>
-            </div>
-          )}
+        <div className="flex flex-col items-start gap-1">
+          <TypingLogo state={typingState} onIdleClick={handleIdleLogoClick} />
         </div>
 
         <div ref={bottomRef} />
@@ -175,9 +136,10 @@ export default function MessageList({
 
       {showScrollBtn && (
         <button
-          className="scroll-bottom-btn"
+          className="sticky bottom-4 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-(--scroll-btn-border) bg-(--scroll-btn-bg) text-(--text-muted) shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-[opacity,transform] duration-180 hover:opacity-80"
           onClick={scrollToBottom}
           aria-label="Scroll to bottom"
+          type="button"
         >
           <svg
             width="16"
