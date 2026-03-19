@@ -47,7 +47,7 @@ pnpm preview
 
 ## 后端依赖
 
-前端默认请求 `http://127.0.0.1:8000`，定义在 [src/services/api.ts](/E:/Projects/astral-ai/src/services/api.ts)。联调前请先启动后端，并确保以下接口可用：
+前端默认请求 `http://127.0.0.1:8000`，定义在 [src/services/api.ts](/E:/Projects/astral-ai/src/services/api.ts)。后端项目地址为 `https://github.com/Ayor1337/astral-ai-langchain-project`。联调前请先拉起该后端，并确保以下接口可用：
 
 - `GET /api/conversations`
 - `GET /api/conversations/{conversation_id}`
