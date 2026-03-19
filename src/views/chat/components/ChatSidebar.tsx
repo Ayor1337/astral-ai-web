@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import type { Conversation } from "../types";
-import ThemeToggle from "../../../components/ThemeToggle";
+import type { Conversation } from "@/types/types.ts";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface Props {
   conversations: Conversation[];

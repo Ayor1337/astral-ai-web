@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router";
 import "./index.css";
 import App from "./App.tsx";
-import ChatView from "./views/chat/ChatPage.tsx";
-import NewChatPage from "./views/chat/NewChatPage.tsx";
+import ChatView from "@/views/chat/ChatPage.tsx";
+import NewChatPage from "@/views/chat/new/NewChatPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

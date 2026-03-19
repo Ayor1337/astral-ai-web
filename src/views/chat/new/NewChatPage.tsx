@@ -4,10 +4,10 @@ import {
   getConversations,
   deleteConversation,
   updateConversationTitle,
-} from "../../services/api";
-import type { Conversation } from "./types";
-import ChatSidebar from "./components/ChatSidebar";
-import ChatInput from "./components/ChatInput";
+} from "@/services/api";
+import type { Conversation } from "@/types/types";
+import ChatSidebar from "@/views/chat/components/ChatSidebar";
+import ChatInput from "@/views/chat/components/ChatInput";
 
 function getGreeting() {
   const h = new Date().getHours();

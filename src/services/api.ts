@@ -4,7 +4,7 @@ import type {
   TraceStep,
   ThoughtStep,
   PlannerRoute,
-} from "../views/chat/types";
+} from "../types/types";
 
 const BASE_URL = "http://127.0.0.1:8000";
 

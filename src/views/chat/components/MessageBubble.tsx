@@ -9,7 +9,7 @@ import type {
   FetchCardPayload,
   RetryCardPayload,
   ToolCardPayload,
-} from "../types";
+} from "@/types/types";
 
 // ── ThoughtStep renderer ─────────────────────────────
 

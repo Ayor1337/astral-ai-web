@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import type { Message } from "../types";
+import type { Message } from "@/types/types";
 import MessageBubble from "./MessageBubble";
 import { THINKING_LOGO_PATH, STREAMING_LOGO_PATH } from "./Idle";
 

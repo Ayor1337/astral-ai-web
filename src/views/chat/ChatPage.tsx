@@ -6,7 +6,7 @@ import type {
   MessageAPI,
   TraceStep,
   ThoughtStep,
-} from "./types";
+} from "@/types/types";
 import {
   getConversations,
   getConversationDetail,
@@ -14,7 +14,7 @@ import {
   deleteConversation,
   streamChat,
   stopChatRun,
-} from "../../services/api";
+} from "@/services/api";
 import ChatSidebar from "./components/ChatSidebar";
 import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
