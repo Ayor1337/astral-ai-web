@@ -2,6 +2,8 @@
 
 一个面向聊天场景的前端项目，基于 React 19、TypeScript 和 Vite 构建。当前实现了首页、发起新对话页、会话列表、流式聊天、停止生成、会话重命名/删除，以及思考链与执行轨迹展示。
 
+对应的后端项目：`https://github.com/Ayor1337/astral-ai-langchain-project`
+
 ## 技术栈
 
 - React 19
@@ -47,7 +49,7 @@ pnpm preview
 
 ## 后端依赖
 
-前端默认请求 `http://127.0.0.1:8000`，定义在 [src/services/api.ts](/E:/Projects/astral-ai/src/services/api.ts)。后端项目地址为 `https://github.com/Ayor1337/astral-ai-langchain-project`。联调前请先拉起该后端，并确保以下接口可用：
+前端默认请求 `http://127.0.0.1:8000`，定义在 [src/services/api.ts](/E:/Projects/astral-ai/src/services/api.ts)。联调前请先启动对应后端，并确保以下接口可用：
 
 - `GET /api/conversations`
 - `GET /api/conversations/{conversation_id}`
