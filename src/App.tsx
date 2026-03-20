@@ -19,15 +19,15 @@ export default function App() {
     <main className="relative isolate min-h-screen overflow-hidden" style={pageStyle}>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-12 -top-24 -z-10 h-88 w-88 rounded-full bg-[var(--ambient-a)] blur-[54px] max-sm:blur-[46px]"
+        className="pointer-events-none absolute -right-12 -top-24 -z-10 h-88 w-88 rounded-full bg-(--ambient-a) blur-[54px] max-sm:blur-[46px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-16 bottom-[6%] -z-10 h-76 w-76 rounded-full bg-[var(--ambient-b)] blur-[54px] max-sm:blur-[46px]"
+        className="pointer-events-none absolute -left-16 bottom-[6%] -z-10 h-76 w-76 rounded-full bg-(--ambient-b) blur-[54px] max-sm:blur-[46px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-[34%] top-[38%] -z-10 h-64 w-64 rounded-full bg-[var(--ambient-c)] blur-[54px] max-sm:blur-[46px]"
+        className="pointer-events-none absolute left-[34%] top-[38%] -z-10 h-64 w-64 rounded-full bg-(--ambient-c) blur-[54px] max-sm:blur-[46px]"
       />
 
       <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-between px-6 pb-10 pt-8 sm:px-10 sm:pb-14 sm:pt-10">
@@ -81,7 +81,7 @@ export default function App() {
             <div>
               <Link
                 to="/chat"
-                className="inline-flex items-center gap-3 rounded-full border px-7 py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--highlight)]"
+                className="inline-flex items-center gap-3 rounded-full border px-7 py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--highlight)"
                 style={{
                   background:
                     "linear-gradient(120deg, var(--btn-bg-a), var(--btn-bg-b))",

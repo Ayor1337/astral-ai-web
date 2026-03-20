@@ -22,7 +22,16 @@ const PROMPTS = [
   {
     label: "写作",
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M12 20h9" />
         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
@@ -31,7 +40,16 @@ const PROMPTS = [
   {
     label: "学习",
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
         <path d="M6 12v5c3 3 9 3 12 0v-5" />
       </svg>
@@ -40,7 +58,16 @@ const PROMPTS = [
   {
     label: "编程",
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <polyline points="16 18 22 12 16 6" />
         <polyline points="8 6 2 12 8 18" />
       </svg>
@@ -49,7 +76,16 @@ const PROMPTS = [
   {
     label: "分析",
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <line x1="18" y1="20" x2="18" y2="10" />
         <line x1="12" y1="20" x2="12" y2="4" />
         <line x1="6" y1="20" x2="6" y2="14" />
@@ -59,7 +95,16 @@ const PROMPTS = [
   {
     label: "头脑风暴",
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         <circle cx="12" cy="12" r="10" />
         <line x1="12" y1="8" x2="12" y2="12" />
         <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -116,16 +161,19 @@ export default function NewChatPage() {
     }
   }, []);
 
-  const handleRenameConversation = useCallback(async (id: string, title: string) => {
-    try {
-      await updateConversationTitle(id, title);
-      setConversations((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, title } : c)),
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
+  const handleRenameConversation = useCallback(
+    async (id: string, title: string) => {
+      try {
+        await updateConversationTitle(id, title);
+        setConversations((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, title } : c)),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [],
+  );
 
   const pageStyle = {
     ...getUiThemeVars(theme),
@@ -150,7 +198,7 @@ export default function NewChatPage() {
             "linear-gradient(140deg, var(--bg-start), var(--bg-mid) 46%, var(--bg-end))",
         }}
       >
-        <div className="flex w-full max-w-[720px] flex-col items-center px-6 sm:px-6">
+        <div className="flex w-full max-w-180 flex-col items-center px-6 sm:px-6">
           <h1
             className="mb-1.5 text-center text-[clamp(2rem,5vw,2.75rem)] font-semibold tracking-[-0.02em]"
             style={{
@@ -160,7 +208,7 @@ export default function NewChatPage() {
           >
             {getGreeting()}
           </h1>
-          <p className="mb-8 text-center text-[0.9375rem] text-[var(--text-muted)]">
+          <p className="mb-8 text-center text-[0.9375rem] text-(--text-muted)">
             有什么我可以帮你的？
           </p>
 
@@ -177,7 +225,7 @@ export default function NewChatPage() {
             {PROMPTS.map((p) => (
               <button
                 key={p.label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-[7px] text-[0.8125rem] text-[var(--text-secondary)] backdrop-blur-[8px] transition-[border-color,background,color] duration-150 hover:bg-[var(--surface-active)] hover:text-[var(--text-base)]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-(--border) bg-(--surface) px-4 py-1.75 text-[0.8125rem] text-(--text-secondary) backdrop-blur-sm transition-[border-color,background,color] duration-150 hover:bg-(--surface-active) hover:text-(--text-base)"
                 type="button"
                 onClick={() => handlePrompt(p.label)}
               >

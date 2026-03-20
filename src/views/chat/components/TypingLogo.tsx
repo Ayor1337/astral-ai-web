@@ -33,7 +33,7 @@ export default function TypingLogo({ state, onIdleClick }: Props) {
     "data-typing-state": state,
     "data-typing-viewbox": viewBox,
     className:
-      "h-7 w-7 shrink-0 overflow-hidden text-[var(--accent)] transition-[opacity,filter] duration-300",
+      "h-7 w-7 shrink-0 overflow-hidden text-(--accent) transition-[opacity,filter] duration-300",
     style: {
       opacity: state === "idle" ? 0.9 : state === "streaming" ? 0.96 : 1,
       filter:
@@ -51,7 +51,9 @@ export default function TypingLogo({ state, onIdleClick }: Props) {
       viewBox={viewBox}
       fill="currentColor"
       className="block h-auto w-full origin-top"
-      style={{ transform: `translateY(-${(visibleFrameIndex * 100) / frameCount}%)` }}
+      style={{
+        transform: `translateY(-${(visibleFrameIndex * 100) / frameCount}%)`,
+      }}
     >
       <path d={path} />
     </svg>
@@ -62,7 +64,7 @@ export default function TypingLogo({ state, onIdleClick }: Props) {
       <button
         type="button"
         aria-label="触发思考动画"
-        className="rounded-full bg-transparent p-0 text-inherit focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color-mix(in_srgb,var(--accent)_55%,transparent)]"
+        className="rounded-full bg-transparent p-0 text-inherit focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color-mix(in_srgb,var(--accent)_55%,transparent)]"
         onClick={onIdleClick}
       >
         <div {...sharedProps}>{svg}</div>
