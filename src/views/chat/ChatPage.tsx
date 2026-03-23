@@ -1,11 +1,16 @@
-import { useState, useCallback, useEffect, useRef, type CSSProperties } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import type {
   Message,
   Conversation,
   MessageAPI,
   TraceStep,
-  ThoughtStep,
 } from "@/types/types";
 import {
   getConversations,
@@ -37,7 +42,6 @@ export default function ChatView() {
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
-  const reasoningBufferRef = useRef("");
   const runIdRef = useRef<string | null>(null);
   const skipUrlLoadRef = useRef(false);
   const activeIdRef = useRef<string | null>(urlId ?? null);
@@ -51,8 +55,6 @@ export default function ChatView() {
         id: `${convId}-${m.sequence}`,
         role: m.role,
         content: m.content,
-        reasoning: m.reasoning_summary ?? undefined,
-        reasoningStatus: m.reasoning_summary != null ? "completed" : undefined,
         traceSteps: m.trace_steps ?? undefined,
         ts: m.created_at,
       })),
@@ -114,7 +116,6 @@ export default function ChatView() {
       setIsTyping(true);
       firstChunkRef.current = false;
       streamingMsgIdRef.current = null;
-      reasoningBufferRef.current = "";
       streamingConvIdRef.current = null;
       isFirstRoundRef.current = !messages.some((m) => m.role === "assistant");
 
@@ -157,67 +158,6 @@ export default function ChatView() {
             );
           }
         },
-        onReasoningChunk: (content) => {
-          const msgId = streamingMsgIdRef.current;
-          if (!msgId) return;
-          reasoningBufferRef.current += content;
-          const text = reasoningBufferRef.current;
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === msgId
-                ? { ...m, reasoning: text, reasoningStatus: "streaming" }
-                : m,
-            ),
-          );
-        },
-        onReasoningDone: (summary, status) => {
-          const msgId = streamingMsgIdRef.current;
-          if (!msgId) return;
-          const finalText = summary || reasoningBufferRef.current;
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === msgId
-                ? {
-                    ...m,
-                    reasoning: finalText,
-                    reasoningStatus:
-                      status === "completed" ? "completed" : "failed",
-                  }
-                : m,
-            ),
-          );
-        },
-        onThoughtStep: (step: ThoughtStep) => {
-          if (!streamingMsgIdRef.current) {
-            const msgId = `ai-${Date.now()}`;
-            streamingMsgIdRef.current = msgId;
-            firstChunkRef.current = true;
-            setIsTyping(false);
-            setStreamingMsgId(msgId);
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: msgId,
-                role: "assistant",
-                content: "",
-                ts: new Date().toISOString(),
-                thoughtSteps: [step],
-              },
-            ]);
-            return;
-          }
-          const msgId = streamingMsgIdRef.current;
-          setMessages((prev) =>
-            prev.map((m) => {
-              if (m.id !== msgId) return m;
-              const steps = m.thoughtSteps ? [...m.thoughtSteps] : [];
-              const idx = steps.findIndex((s) => s.step_id === step.step_id);
-              if (idx >= 0) steps[idx] = step;
-              else steps.push(step);
-              return { ...m, thoughtSteps: steps };
-            }),
-          );
-        },
         onTraceStep: (step: TraceStep) => {
           if (!streamingMsgIdRef.current) {
             const msgId = `ai-${Date.now()}`;
@@ -254,7 +194,6 @@ export default function ChatView() {
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
-          reasoningBufferRef.current = "";
           runIdRef.current = null;
           if (isFirstRoundRef.current && streamingConvIdRef.current) {
             const convId = streamingConvIdRef.current;
@@ -277,7 +216,6 @@ export default function ChatView() {
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
-          reasoningBufferRef.current = "";
           runIdRef.current = null;
           isFirstRoundRef.current = false;
         },
@@ -286,7 +224,6 @@ export default function ChatView() {
         setIsTyping(false);
         setStreamingMsgId(null);
         streamingMsgIdRef.current = null;
-        reasoningBufferRef.current = "";
         runIdRef.current = null;
       });
     },
@@ -353,16 +290,19 @@ export default function ChatView() {
     [activeId, navigate],
   );
 
-  const handleRenameConversation = useCallback(async (id: string, title: string) => {
-    try {
-      await updateConversationTitle(id, title);
-      setConversations((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, title } : c)),
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
+  const handleRenameConversation = useCallback(
+    async (id: string, title: string) => {
+      try {
+        await updateConversationTitle(id, title);
+        setConversations((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, title } : c)),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [],
+  );
 
   const handleRetryMessage = useCallback(
     (msgId: string) => {
@@ -425,7 +365,9 @@ export default function ChatView() {
       >
         <ChatHeader
           title={activeConv?.title ?? ""}
-          onRename={(title) => activeId && handleRenameConversation(activeId, title)}
+          onRename={(title) =>
+            activeId && handleRenameConversation(activeId, title)
+          }
           thinkingEnabled={thinkingEnabled}
         />
         <MessageList
@@ -447,4 +389,3 @@ export default function ChatView() {
     </div>
   );
 }
-

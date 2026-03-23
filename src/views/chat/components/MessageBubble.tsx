@@ -4,7 +4,6 @@ import remarkGfm from "remark-gfm";
 import type {
   Message,
   TraceStep,
-  ThoughtStep,
   SearchResultItem,
   FetchCardPayload,
   RetryCardPayload,
@@ -27,7 +26,7 @@ function ThoughtStepItem({
   step,
   isLast,
 }: {
-  step: ThoughtStep | TraceStep;
+  step: TraceStep;
   isLast: boolean;
 }) {
   const isSuccess = step.status === "success";
@@ -59,9 +58,9 @@ function ThoughtStepItem({
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-px">
-        {step.message && (
+        {(step.thinking || step.message) && (
           <span className="text-[11px] leading-[1.4] text-(--text-muted)">
-            {step.message}
+            {step.thinking || step.message}
           </span>
         )}
       </div>
@@ -379,28 +378,19 @@ export default function MessageBubble({
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(message.content);
 
-  const thoughtDisplaySteps = useMemo<(ThoughtStep | TraceStep)[]>(
-    () =>
-      message.thoughtSteps?.length
-        ? message.thoughtSteps
-        : (message.traceSteps?.filter((s) => s.type === "thought") ?? []),
-    [message.thoughtSteps, message.traceSteps],
+  const thoughtDisplaySteps = useMemo<TraceStep[]>(
+    () => message.traceSteps?.filter((s) => s.type === "thinking") ?? [],
+    [message.traceSteps],
   );
 
   const traceDisplaySteps =
-    message.traceSteps?.filter((s) => s.type !== "thought") ?? [];
+    message.traceSteps?.filter((s) => s.type !== "thinking") ?? [];
 
   const hasThoughtPanel =
     thoughtDisplaySteps.length > 0 || traceDisplaySteps.length > 0;
   const isThinking = thoughtDisplaySteps.some((s) => s.status === "running");
 
-  const hasLegacyReasoning = !thoughtDisplaySteps.length && !!message.reasoning;
-  const isLegacyReasoningStreaming =
-    hasLegacyReasoning && message.reasoningStatus === "streaming";
-
-  const [reasoningExpanded, setReasoningExpanded] = useState(
-    isThinking || isLegacyReasoningStreaming,
-  );
+  const [reasoningExpanded, setReasoningExpanded] = useState(isThinking);
 
   const orderedThoughtSteps = useMemo(
     () =>
@@ -502,33 +492,30 @@ export default function MessageBubble({
   }
 
   const thoughtRows = [...orderedThoughtSteps];
-  if (!isThinking && !isLegacyReasoningStreaming && thoughtRows.length > 0) {
+  if (!isThinking && thoughtRows.length > 0) {
     thoughtRows.push({
       step_id: "done",
       status: "success",
-      type: "thought",
+      type: "thinking",
       title: "done",
       message: "完成",
+      timestamp: new Date().toISOString(),
       order: (thoughtRows.at(-1)?.order ?? 0) + 1,
-    } as ThoughtStep);
+    } as TraceStep);
   }
 
   return (
     <div className="group/message flex flex-col items-start gap-1">
-      {(hasThoughtPanel || hasLegacyReasoning) && (
+      {hasThoughtPanel && (
         <div className="mb-2.5">
           <button
             className="inline-flex items-center gap-1 bg-transparent p-0 text-[0.8125rem] text-(--text-muted) transition-colors duration-100 hover:text-(--text-primary)"
             onClick={() => setReasoningExpanded((v) => !v)}
-            aria-expanded={
-              reasoningExpanded || isThinking || isLegacyReasoningStreaming
-            }
+            aria-expanded={reasoningExpanded || isThinking}
             type="button"
           >
             <span className="max-w-105 overflow-hidden text-ellipsis whitespace-nowrap font-normal">
-              {isThinking || isLegacyReasoningStreaming
-                ? "思考中…"
-                : "思考过程"}
+              {isThinking ? "思考中…" : "思考过程"}
             </span>
             <svg
               width="12"
@@ -539,7 +526,7 @@ export default function MessageBubble({
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={`shrink-0 opacity-60 transition-transform duration-200 ${reasoningExpanded || isThinking || isLegacyReasoningStreaming ? "rotate-180" : ""}`}
+              className={`shrink-0 opacity-60 transition-transform duration-200 ${reasoningExpanded || isThinking ? "rotate-180" : ""}`}
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
@@ -548,10 +535,7 @@ export default function MessageBubble({
           <div
             className="grid transition-[grid-template-rows] duration-200"
             style={{
-              gridTemplateRows:
-                reasoningExpanded || isThinking || isLegacyReasoningStreaming
-                  ? "1fr"
-                  : "0fr",
+              gridTemplateRows: reasoningExpanded || isThinking ? "1fr" : "0fr",
             }}
           >
             <div className="min-h-0 overflow-hidden pl-1 pt-1.5">
@@ -575,41 +559,25 @@ export default function MessageBubble({
                 </div>
               )}
 
-              {hasLegacyReasoning && (
-                <div className="flex items-start gap-1.5 py-0.75 text-[0.8125rem] leading-normal text-(--text-muted)">
-                  <span className="mt-0.5">
-                    <Spinner subtle />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    {message.reasoning}
-                    {isLegacyReasoningStreaming && (
-                      <span aria-hidden="true">▌</span>
-                    )}
-                  </span>
+              {!isThinking && !orderedThoughtSteps.length && (
+                <div className="flex items-start gap-1.5 py-0.75 text-[0.8125rem] leading-normal text-(--text-subtle)">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="mt-px shrink-0 text-(--text-muted)"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                  <span className="min-w-0 flex-1">Done</span>
                 </div>
               )}
-
-              {!isThinking &&
-                !isLegacyReasoningStreaming &&
-                !orderedThoughtSteps.length && (
-                  <div className="flex items-start gap-1.5 py-0.75 text-[0.8125rem] leading-normal text-(--text-subtle)">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mt-px shrink-0 text-(--text-muted)"
-                    >
-                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                      <polyline points="22 4 12 14.01 9 11.01" />
-                    </svg>
-                    <span className="min-w-0 flex-1">Done</span>
-                  </div>
-                )}
             </div>
           </div>
         </div>

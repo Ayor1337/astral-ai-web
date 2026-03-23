@@ -2,8 +2,6 @@ import type {
   ConversationSummary,
   ConversationDetail,
   TraceStep,
-  ThoughtStep,
-  PlannerRoute,
 } from "../types/types";
 
 const BASE_URL = "http://127.0.0.1:8000";
@@ -70,14 +68,9 @@ export interface StreamCallbacks {
     runId: string,
   ) => void;
   onChunk: (content: string) => void;
-  onReasoningChunk: (content: string) => void;
-  onReasoningDone: (summary: string, status: string) => void;
-  onThoughtStep: (step: ThoughtStep) => void;
   onTraceStep: (step: TraceStep) => void;
-  onTraceDone: () => void;
-  onRoute?: (route: PlannerRoute) => void;
-  onPlannerDone?: (status: string) => void;
-  onDone: () => void;
+  onTraceDone: (status: string) => void;
+  onDone: (status: string, runId: string) => void;
   onError: (detail: string) => void;
 }
 
@@ -148,32 +141,17 @@ export async function streamChat(
           case "chunk":
             callbacks.onChunk(data.content as string);
             break;
-          case "reasoning_chunk":
-            callbacks.onReasoningChunk(data.content as string);
-            break;
-          case "reasoning_done":
-            callbacks.onReasoningDone(
-              (data.summary as string) ?? "",
-              (data.status as string) ?? "completed",
-            );
-            break;
-          case "thought_step":
-            callbacks.onThoughtStep(data as unknown as ThoughtStep);
-            break;
           case "trace_step":
             callbacks.onTraceStep(data as unknown as TraceStep);
             break;
           case "trace_done":
-            callbacks.onTraceDone();
-            break;
-          case "route":
-            callbacks.onRoute?.(data as unknown as PlannerRoute);
-            break;
-          case "planner_done":
-            callbacks.onPlannerDone?.((data.status as string) ?? "completed");
+            callbacks.onTraceDone((data.status as string) ?? "completed");
             break;
           case "done":
-            callbacks.onDone();
+            callbacks.onDone(
+              (data.status as string) ?? "completed",
+              (data.run_id as string) ?? "",
+            );
             break;
           case "error":
             callbacks.onError((data.detail as string) ?? "unknown error");
