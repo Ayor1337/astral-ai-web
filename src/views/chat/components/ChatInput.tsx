@@ -57,10 +57,10 @@ export default function ChatInput({
     <div
       className={`w-full shrink-0 ${centered ? "mx-auto px-0 pb-0" : "mx-auto max-w-3xl px-6 pb-3"}`}
     >
-      <div className="flex flex-col gap-2 rounded-[18px] border border-(--input-border) bg-(--input-bg) px-3.5 pb-2 pt-3 backdrop-blur-[10px] transition-colors duration-200 focus-within:border-(--highlight)">
+      <div className="flex flex-col gap-2 rounded-[18px] border border-(--input-border) bg-(--input-bg) px-3.5 pb-2 pt-3 transition-colors duration-200 focus-within:border-(--highlight)">
         <textarea
           ref={textareaRef}
-          className="max-h-36 w-full resize-none overflow-y-auto border-none bg-transparent text-[0.9375rem] leading-6 text-(--text-base) outline-none placeholder:text-(--text-footer) [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-(--surface-border) [&::-webkit-scrollbar-track]:bg-transparent"
+          className="max-h-36 w-full resize-none overflow-y-auto border-none bg-transparent text-[0.9375rem] leading-6 text-(--text-base) outline-none placeholder:text-(--text-footer)"
           placeholder="Reply..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
@@ -239,7 +239,7 @@ export default function ChatInput({
       <p
         className={`mt-2 text-center text-[0.6875rem] text-(--disclaimer-text) ${centered ? "px-2" : "px-0"}`}
       >
-        Astral AI is AI and can make mistakes. Please double-check responses.
+        AI 可能犯错，请仔细核对回答。
       </p>
     </div>
   );

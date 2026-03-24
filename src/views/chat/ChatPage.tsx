@@ -1,11 +1,16 @@
-import { useState, useCallback, useEffect, useRef, type CSSProperties } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type CSSProperties,
+} from "react";
 import { useNavigate, useParams, useLocation } from "react-router";
 import type {
   Message,
   Conversation,
   MessageAPI,
   TraceStep,
-  ThoughtStep,
 } from "@/types/types";
 import {
   getConversations,
@@ -16,6 +21,7 @@ import {
   stopChatRun,
 } from "@/services/api";
 import { useTheme } from "@/hooks/useTheme";
+import { usePreferences } from "@/hooks/usePreferences";
 import { getUiThemeVars } from "@/theme/uiTheme";
 import ChatSidebar from "./components/ChatSidebar";
 import ChatHeader from "./components/ChatHeader";
@@ -33,17 +39,15 @@ export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const { thinkingEnabled, setThinkingEnabled, toggleThinking } =
+    usePreferences();
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
-  const reasoningBufferRef = useRef("");
   const runIdRef = useRef<string | null>(null);
   const skipUrlLoadRef = useRef(false);
   const activeIdRef = useRef<string | null>(urlId ?? null);
   const autoSentRef = useRef(false);
-  const isFirstRoundRef = useRef(false);
-  const streamingConvIdRef = useRef<string | null>(null);
 
   const mapAPIMessages = useCallback(
     (convId: string, msgs: MessageAPI[]): Message[] =>
@@ -51,8 +55,6 @@ export default function ChatView() {
         id: `${convId}-${m.sequence}`,
         role: m.role,
         content: m.content,
-        reasoning: m.reasoning_summary ?? undefined,
-        reasoningStatus: m.reasoning_summary != null ? "completed" : undefined,
         traceSteps: m.trace_steps ?? undefined,
         ts: m.created_at,
       })),
@@ -114,14 +116,10 @@ export default function ChatView() {
       setIsTyping(true);
       firstChunkRef.current = false;
       streamingMsgIdRef.current = null;
-      reasoningBufferRef.current = "";
-      streamingConvIdRef.current = null;
-      isFirstRoundRef.current = !messages.some((m) => m.role === "assistant");
 
       streamChat(activeId, content, thinkingEnabled, {
         onConversation: (conversationId, title, runId) => {
           runIdRef.current = runId;
-          streamingConvIdRef.current = conversationId;
           if (activeIdRef.current === null) {
             skipUrlLoadRef.current = true;
             navigate(`/chat/${conversationId}`, { replace: true });
@@ -157,67 +155,6 @@ export default function ChatView() {
             );
           }
         },
-        onReasoningChunk: (content) => {
-          const msgId = streamingMsgIdRef.current;
-          if (!msgId) return;
-          reasoningBufferRef.current += content;
-          const text = reasoningBufferRef.current;
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === msgId
-                ? { ...m, reasoning: text, reasoningStatus: "streaming" }
-                : m,
-            ),
-          );
-        },
-        onReasoningDone: (summary, status) => {
-          const msgId = streamingMsgIdRef.current;
-          if (!msgId) return;
-          const finalText = summary || reasoningBufferRef.current;
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === msgId
-                ? {
-                    ...m,
-                    reasoning: finalText,
-                    reasoningStatus:
-                      status === "completed" ? "completed" : "failed",
-                  }
-                : m,
-            ),
-          );
-        },
-        onThoughtStep: (step: ThoughtStep) => {
-          if (!streamingMsgIdRef.current) {
-            const msgId = `ai-${Date.now()}`;
-            streamingMsgIdRef.current = msgId;
-            firstChunkRef.current = true;
-            setIsTyping(false);
-            setStreamingMsgId(msgId);
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: msgId,
-                role: "assistant",
-                content: "",
-                ts: new Date().toISOString(),
-                thoughtSteps: [step],
-              },
-            ]);
-            return;
-          }
-          const msgId = streamingMsgIdRef.current;
-          setMessages((prev) =>
-            prev.map((m) => {
-              if (m.id !== msgId) return m;
-              const steps = m.thoughtSteps ? [...m.thoughtSteps] : [];
-              const idx = steps.findIndex((s) => s.step_id === step.step_id);
-              if (idx >= 0) steps[idx] = step;
-              else steps.push(step);
-              return { ...m, thoughtSteps: steps };
-            }),
-          );
-        },
         onTraceStep: (step: TraceStep) => {
           if (!streamingMsgIdRef.current) {
             const msgId = `ai-${Date.now()}`;
@@ -243,54 +180,52 @@ export default function ChatView() {
               if (m.id !== msgId) return m;
               const steps = m.traceSteps ? [...m.traceSteps] : [];
               const idx = steps.findIndex((s) => s.step_id === step.step_id);
-              if (idx >= 0) steps[idx] = step;
-              else steps.push(step);
+              if (idx >= 0) {
+                // thinking 节点 running 事件携带增量文本，需累加；success 事件才是完整文本
+                if (step.type === "thinking" && step.status === "running") {
+                  steps[idx] = {
+                    ...step,
+                    thinking:
+                      (steps[idx].thinking ?? "") + (step.thinking ?? ""),
+                  };
+                } else {
+                  steps[idx] = step;
+                }
+              } else {
+                steps.push(step);
+              }
               return { ...m, traceSteps: steps };
             }),
           );
         },
         onTraceDone: () => {},
+        onConversationTitle: (conversationId, title) => {
+          setConversations((prev) =>
+            prev.map((c) => (c.id === conversationId ? { ...c, title } : c)),
+          );
+        },
         onDone: () => {
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
-          reasoningBufferRef.current = "";
           runIdRef.current = null;
-          if (isFirstRoundRef.current && streamingConvIdRef.current) {
-            const convId = streamingConvIdRef.current;
-            isFirstRoundRef.current = false;
-            setTimeout(() => {
-              getConversationDetail(convId)
-                .then((detail) => {
-                  setConversations((prev) =>
-                    prev.map((c) =>
-                      c.id === detail.id ? { ...c, title: detail.title } : c,
-                    ),
-                  );
-                })
-                .catch(console.error);
-            }, 1500);
-          }
         },
         onError: (detail) => {
           console.error("streamChat error:", detail);
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
-          reasoningBufferRef.current = "";
           runIdRef.current = null;
-          isFirstRoundRef.current = false;
         },
       }).catch((e) => {
         console.error(e);
         setIsTyping(false);
         setStreamingMsgId(null);
         streamingMsgIdRef.current = null;
-        reasoningBufferRef.current = "";
         runIdRef.current = null;
       });
     },
-    [activeId, messages, navigate, thinkingEnabled],
+    [activeId, navigate, thinkingEnabled],
   );
 
   const handleStop = useCallback(() => {
@@ -318,7 +253,14 @@ export default function ChatView() {
       if (enableThinking) setThinkingEnabled(true);
       handleSend(msg);
     }, 0);
-  }, [handleSend, location.pathname, location.state, navigate, urlId]);
+  }, [
+    handleSend,
+    location.pathname,
+    location.state,
+    navigate,
+    setThinkingEnabled,
+    urlId,
+  ]);
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -353,16 +295,19 @@ export default function ChatView() {
     [activeId, navigate],
   );
 
-  const handleRenameConversation = useCallback(async (id: string, title: string) => {
-    try {
-      await updateConversationTitle(id, title);
-      setConversations((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, title } : c)),
-      );
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
+  const handleRenameConversation = useCallback(
+    async (id: string, title: string) => {
+      try {
+        await updateConversationTitle(id, title);
+        setConversations((prev) =>
+          prev.map((c) => (c.id === id ? { ...c, title } : c)),
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    [],
+  );
 
   const handleRetryMessage = useCallback(
     (msgId: string) => {
@@ -424,8 +369,10 @@ export default function ChatView() {
         }}
       >
         <ChatHeader
-          title={activeConv?.title ?? ""}
-          onRename={(title) => activeId && handleRenameConversation(activeId, title)}
+          title={activeConv?.title ?? "新聊天"}
+          onRename={(title) =>
+            activeId && handleRenameConversation(activeId, title)
+          }
           thinkingEnabled={thinkingEnabled}
         />
         <MessageList
@@ -441,10 +388,9 @@ export default function ChatView() {
           onStop={handleStop}
           disabled={isBusy}
           thinkingEnabled={thinkingEnabled}
-          onThinkingToggle={() => setThinkingEnabled((v) => !v)}
+          onThinkingToggle={toggleThinking}
         />
       </main>
     </div>
   );
 }
-

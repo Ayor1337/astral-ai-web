@@ -50,14 +50,15 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
       "--header-border": "rgba(0, 0, 0, 0.06)",
       "--msg-user-bg": "#ede8e2",
       "--msg-user-text": "#2d2b27",
-      "--input-bg": "rgba(255, 255, 255, 0.7)",
+      "--input-bg": "rgba(255, 255, 255, 1)",
       "--input-border": "rgba(0, 0, 0, 0.1)",
       "--input-send-bg": "rgba(0, 0, 0, 0.08)",
       "--input-send-disabled": "rgba(160, 140, 120, 0.2)",
       "--disclaimer-text": "rgba(100, 90, 70, 0.5)",
       "--scroll-btn-bg": "rgba(255, 255, 255, 0.9)",
       "--scroll-btn-border": "rgba(0, 0, 0, 0.1)",
-      "--user-avatar-bg": "linear-gradient(135deg, var(--highlight-strong), var(--highlight))",
+      "--user-avatar-bg":
+        "linear-gradient(135deg, var(--highlight-strong), var(--highlight))",
     } as CSSProperties;
   }
 
@@ -107,13 +108,14 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
     "--header-border": "rgba(255, 255, 255, 0.06)",
     "--msg-user-bg": "#3d3530",
     "--msg-user-text": "#eeebe6",
-    "--input-bg": "rgba(45, 40, 36, 0.5)",
+    "--input-bg": "rgba(45, 40, 36, 1)",
     "--input-border": "rgba(255, 245, 230, 0.12)",
     "--input-send-bg": "rgba(255, 255, 255, 0.12)",
     "--input-send-disabled": "rgba(120, 110, 95, 0.2)",
     "--disclaimer-text": "rgba(200, 190, 175, 0.5)",
     "--scroll-btn-bg": "rgba(50, 45, 40, 0.85)",
     "--scroll-btn-border": "rgba(255, 255, 255, 0.1)",
-    "--user-avatar-bg": "linear-gradient(135deg, var(--highlight-strong), var(--highlight))",
+    "--user-avatar-bg":
+      "linear-gradient(135deg, var(--highlight-strong), var(--highlight))",
   } as CSSProperties;
 }

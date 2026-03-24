@@ -83,10 +83,7 @@ export default function MessageList({
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-(--surface-border) [&::-webkit-scrollbar-track]:bg-transparent"
-    >
+    <div ref={containerRef} className="relative flex-1 overflow-y-auto">
       <div className="mx-auto flex max-w-180 flex-col gap-5 px-6 pb-4 pt-8">
         {messages.length === 0 && !isTyping && (
           <div className="pointer-events-none flex flex-col items-center justify-center gap-4 px-6 pb-10 pt-20 text-center select-none">

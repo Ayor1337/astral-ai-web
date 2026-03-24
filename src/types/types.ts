@@ -25,17 +25,6 @@ export interface ToolCardPayload {
   output?: unknown;
 }
 
-// ── Thought step (thought_step SSE event) ──────────
-
-export interface ThoughtStep {
-  step_id: string;
-  type: "thought";
-  status: "running" | "success" | "skipped";
-  title: string;
-  message?: string;
-  timestamp: string;
-  order?: number;
-}
 
 // ── Trace step (structured execution trace) ─────────
 
@@ -43,17 +32,19 @@ export interface TraceStep {
   step_id: string;
   parent_step_id?: string;
   type:
-    | "thought"
+    | "thinking"
     | "search"
     | "fetch"
     | "tool_call"
     | "tool_result"
     | "retry"
     | "other";
-  kind?: string;
   status: "pending" | "running" | "success" | "error" | "skipped";
-  title: string;
+  title?: string;
   message?: string;
+  thinking?: string;     // 新增: thinking内容
+  signature?: string;    // 新增: thinking签名
+  index?: number;        // 新增: thinking索引
   url?: string;
   query?: string;
   result_count?: number;
@@ -69,13 +60,6 @@ export interface TraceStep {
   payload?: Record<string, unknown>;
 }
 
-// ── Planner route result ─────────────────────────────
-
-export interface PlannerRoute {
-  route: "simple" | "complex" | "agent";
-  plan?: string[];
-  tools?: string[];
-}
 
 // ── Frontend message ─────────────────────────────────
 
@@ -84,11 +68,6 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   ts: string; // ISO timestamp
-  /** Streaming / final reasoning summary text (legacy) */
-  reasoning?: string;
-  reasoningStatus?: "streaming" | "completed" | "failed";
-  /** Discrete thought steps from thought_step SSE events */
-  thoughtSteps?: ThoughtStep[];
   traceSteps?: TraceStep[];
 }
 
@@ -110,7 +89,6 @@ export interface ConversationSummary {
 export interface MessageAPI {
   role: "user" | "assistant";
   content: string;
-  reasoning_summary: string | null;
   trace_steps: TraceStep[] | null;
   sequence: number;
   created_at: string;
