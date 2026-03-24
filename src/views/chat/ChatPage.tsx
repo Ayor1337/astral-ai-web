@@ -46,8 +46,6 @@ export default function ChatView() {
   const skipUrlLoadRef = useRef(false);
   const activeIdRef = useRef<string | null>(urlId ?? null);
   const autoSentRef = useRef(false);
-  const isFirstRoundRef = useRef(false);
-  const streamingConvIdRef = useRef<string | null>(null);
 
   const mapAPIMessages = useCallback(
     (convId: string, msgs: MessageAPI[]): Message[] =>
@@ -116,13 +114,10 @@ export default function ChatView() {
       setIsTyping(true);
       firstChunkRef.current = false;
       streamingMsgIdRef.current = null;
-      streamingConvIdRef.current = null;
-      isFirstRoundRef.current = !messages.some((m) => m.role === "assistant");
 
       streamChat(activeId, content, thinkingEnabled, {
         onConversation: (conversationId, title, runId) => {
           runIdRef.current = runId;
-          streamingConvIdRef.current = conversationId;
           if (activeIdRef.current === null) {
             skipUrlLoadRef.current = true;
             navigate(`/chat/${conversationId}`, { replace: true });
@@ -190,26 +185,16 @@ export default function ChatView() {
           );
         },
         onTraceDone: () => {},
+        onConversationTitle: (conversationId, title) => {
+          setConversations((prev) =>
+            prev.map((c) => (c.id === conversationId ? { ...c, title } : c)),
+          );
+        },
         onDone: () => {
           setIsTyping(false);
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
           runIdRef.current = null;
-          if (isFirstRoundRef.current && streamingConvIdRef.current) {
-            const convId = streamingConvIdRef.current;
-            isFirstRoundRef.current = false;
-            setTimeout(() => {
-              getConversationDetail(convId)
-                .then((detail) => {
-                  setConversations((prev) =>
-                    prev.map((c) =>
-                      c.id === detail.id ? { ...c, title: detail.title } : c,
-                    ),
-                  );
-                })
-                .catch(console.error);
-            }, 1500);
-          }
         },
         onError: (detail) => {
           console.error("streamChat error:", detail);
@@ -217,7 +202,6 @@ export default function ChatView() {
           setStreamingMsgId(null);
           streamingMsgIdRef.current = null;
           runIdRef.current = null;
-          isFirstRoundRef.current = false;
         },
       }).catch((e) => {
         console.error(e);
@@ -227,7 +211,7 @@ export default function ChatView() {
         runIdRef.current = null;
       });
     },
-    [activeId, messages, navigate, thinkingEnabled],
+    [activeId, navigate, thinkingEnabled],
   );
 
   const handleStop = useCallback(() => {

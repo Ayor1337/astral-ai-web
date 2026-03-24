@@ -82,6 +82,8 @@ export interface StreamCallbacks {
   onTraceStep: (step: TraceStep) => void;
   /** 思考链追踪阶段结束 */
   onTraceDone: (status: string) => void;
+  /** 首轮对话标题生成完成，返回 conversationId 和新标题 */
+  onConversationTitle?: (conversationId: string, title: string) => void;
   /** 整个 run 结束，携带最终状态和 runId */
   onDone: (status: string, runId: string) => void;
   /** 发生错误（网络异常或后端返回 error 事件） */
@@ -177,6 +179,12 @@ export async function streamChat(
             callbacks.onDone(
               (data.status as string) ?? "completed",
               (data.run_id as string) ?? "",
+            );
+            break;
+          case "conversation_title":
+            callbacks.onConversationTitle?.(
+              data.conversation_id as string,
+              data.title as string,
             );
             break;
           case "error":
