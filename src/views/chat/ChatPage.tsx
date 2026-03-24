@@ -28,6 +28,23 @@ import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
+function mergeStreamingText(previous: string, incoming: string) {
+  if (!previous) return incoming;
+  if (!incoming) return previous;
+
+  // Some backends stream full snapshots, not deltas.
+  if (incoming.startsWith(previous)) return incoming;
+
+  const maxOverlap = Math.min(previous.length, incoming.length);
+  for (let size = maxOverlap; size > 0; size -= 1) {
+    if (previous.endsWith(incoming.slice(0, size))) {
+      return previous + incoming.slice(size);
+    }
+  }
+
+  return previous + incoming;
+}
+
 export default function ChatView() {
   const { theme } = useTheme();
   const { id: urlId } = useParams<{ id: string }>();
@@ -181,12 +198,16 @@ export default function ChatView() {
               const steps = m.traceSteps ? [...m.traceSteps] : [];
               const idx = steps.findIndex((s) => s.step_id === step.step_id);
               if (idx >= 0) {
-                // thinking 节点 running 事件携带增量文本，需累加；success 事件才是完整文本
+                // thinking/running 既可能是增量，也可能是当前完整快照，需智能合并。
                 if (step.type === "thinking" && step.status === "running") {
+                  const previousThinking = steps[idx].thinking ?? "";
                   steps[idx] = {
+                    ...steps[idx],
                     ...step,
-                    thinking:
-                      (steps[idx].thinking ?? "") + (step.thinking ?? ""),
+                    thinking: mergeStreamingText(
+                      previousThinking,
+                      step.thinking ?? "",
+                    ),
                   };
                 } else {
                   steps[idx] = step;
