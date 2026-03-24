@@ -180,8 +180,20 @@ export default function ChatView() {
               if (m.id !== msgId) return m;
               const steps = m.traceSteps ? [...m.traceSteps] : [];
               const idx = steps.findIndex((s) => s.step_id === step.step_id);
-              if (idx >= 0) steps[idx] = step;
-              else steps.push(step);
+              if (idx >= 0) {
+                // thinking 节点 running 事件携带增量文本，需累加；success 事件才是完整文本
+                if (step.type === "thinking" && step.status === "running") {
+                  steps[idx] = {
+                    ...step,
+                    thinking:
+                      (steps[idx].thinking ?? "") + (step.thinking ?? ""),
+                  };
+                } else {
+                  steps[idx] = step;
+                }
+              } else {
+                steps.push(step);
+              }
               return { ...m, traceSteps: steps };
             }),
           );
