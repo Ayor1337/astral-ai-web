@@ -24,6 +24,10 @@ LLM_PROVIDER=anthropic
 LLM_API_KEY=your-api-key
 LLM_BASE_URL=
 LLM_MODEL=your-model-name
+TITLE_AGENT_PROVIDER=anthropic
+TITLE_AGENT_API_KEY=
+TITLE_AGENT_BASE_URL=
+TITLE_AGENT_MODEL=
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/astral_ai
 MEMORY_WINDOW_SIZE=8
 MEMORY_SUMMARY_TRIGGER=12
@@ -33,6 +37,7 @@ MEMORY_SUMMARY_TRIGGER=12
 
 - `thinking_enabled=true` 当前仅支持 `anthropic`
 - `thinking_enabled=false` 不会暴露任何链路事件
+- `TITLE_AGENT_*` 为可选配置；仅用于首轮对话标题生成
 
 ## 流式聊天
 
@@ -67,13 +72,13 @@ Content-Type: application/json
 #### 非思考模式
 
 ```text
-conversation -> chunk* -> done
+conversation -> chunk* -> conversation_title? -> done
 ```
 
 #### 思考模式
 
 ```text
-conversation -> trace_step* -> thinking(success upsert)? -> chunk* -> trace_done -> done
+conversation -> trace_step* -> thinking(success upsert)? -> chunk* -> conversation_title? -> trace_done -> done
 ```
 
 ### SSE 事件
@@ -81,10 +86,19 @@ conversation -> trace_step* -> thinking(success upsert)? -> chunk* -> trace_done
 `conversation`
 
 - 返回 `conversation_id`、`title`、`run_id`
+- 这是首个事件，会立即返回；如果是新会话，这里的 `title` 通常还是默认值 `新对话`
 
 `chunk`
 
 - 返回正文文本分片
+
+`conversation_title`
+
+- 仅在“首轮对话”成功生成标题时出现
+- 返回 `conversation_id`、`title`
+- 事件会在 assistant 正文输出完成后、`done` 之前发送
+- 后端会同步把该标题写回会话记录；后续列表和详情接口会返回更新后的标题
+- 如果标题 agent 未配置、调用失败、assistant 没有正文，或用户中途停止，本事件不会出现，聊天主流程也不会报错
 
 `trace_step`
 

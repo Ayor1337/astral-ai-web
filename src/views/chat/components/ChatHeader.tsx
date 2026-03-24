@@ -73,4 +73,3 @@ export default function ChatHeader({ title, onRename }: Props) {
     </header>
   );
 }
-

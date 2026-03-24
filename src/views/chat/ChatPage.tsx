@@ -364,7 +364,7 @@ export default function ChatView() {
         }}
       >
         <ChatHeader
-          title={activeConv?.title ?? ""}
+          title={activeConv?.title ?? "新聊天"}
           onRename={(title) =>
             activeId && handleRenameConversation(activeId, title)
           }

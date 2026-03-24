@@ -78,8 +78,8 @@ const IconCustomize = () => (
 );
 
 const NAV_ITEMS = [
-  { id: "new", label: "New chat", icon: <IconNewChat /> },
-  { id: "search", label: "Search", icon: <IconSearch /> },
+  { id: "new", label: "新建聊天", icon: <IconNewChat /> },
+  { id: "search", label: "搜索", icon: <IconSearch /> },
 ];
 
 const navItemClass =
@@ -149,9 +149,9 @@ export default function ChatSidebar({
       </nav>
 
       <div className="px-4.5 pb-1.5 pt-2.5 text-[0.6875rem] font-medium uppercase tracking-[0.06em] text-(--sidebar-section-text)">
-        Recents
+        最近聊天
       </div>
-      <div className="flex flex-1 flex-col gap-px overflow-y-auto px-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-(--surface-border) [&::-webkit-scrollbar-track]:bg-transparent">
+      <div className="flex flex-1 flex-col gap-px overflow-y-auto px-2">
         {conversations.map((conv) => {
           const isActive = conv.id === activeId;
           return (
