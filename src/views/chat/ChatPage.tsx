@@ -21,6 +21,7 @@ import {
   stopChatRun,
 } from "@/services/api";
 import { useTheme } from "@/hooks/useTheme";
+import { usePreferences } from "@/hooks/usePreferences";
 import { getUiThemeVars } from "@/theme/uiTheme";
 import ChatSidebar from "./components/ChatSidebar";
 import ChatHeader from "./components/ChatHeader";
@@ -38,7 +39,7 @@ export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const { thinkingEnabled, setThinkingEnabled, toggleThinking } = usePreferences();
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
@@ -239,7 +240,7 @@ export default function ChatView() {
       if (enableThinking) setThinkingEnabled(true);
       handleSend(msg);
     }, 0);
-  }, [handleSend, location.pathname, location.state, navigate, urlId]);
+  }, [handleSend, location.pathname, location.state, navigate, setThinkingEnabled, urlId]);
 
   const handleSelect = useCallback(
     (id: string) => {
@@ -367,7 +368,7 @@ export default function ChatView() {
           onStop={handleStop}
           disabled={isBusy}
           thinkingEnabled={thinkingEnabled}
-          onThinkingToggle={() => setThinkingEnabled((v) => !v)}
+          onThinkingToggle={toggleThinking}
         />
       </main>
     </div>

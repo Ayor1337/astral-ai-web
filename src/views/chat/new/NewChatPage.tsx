@@ -6,6 +6,7 @@ import {
   updateConversationTitle,
 } from "@/services/api";
 import { useTheme } from "@/hooks/useTheme";
+import { usePreferences } from "@/hooks/usePreferences";
 import { getUiThemeVars } from "@/theme/uiTheme";
 import type { Conversation } from "@/types/types";
 import ChatSidebar from "@/views/chat/components/ChatSidebar";
@@ -117,7 +118,7 @@ export default function NewChatPage() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [thinkingEnabled, setThinkingEnabled] = useState(false);
+  const { thinkingEnabled, toggleThinking } = usePreferences();
 
   useEffect(() => {
     getConversations()
@@ -216,7 +217,7 @@ export default function NewChatPage() {
             <ChatInput
               onSend={handleSend}
               thinkingEnabled={thinkingEnabled}
-              onThinkingToggle={() => setThinkingEnabled((v) => !v)}
+              onThinkingToggle={toggleThinking}
               centered
             />
           </div>
