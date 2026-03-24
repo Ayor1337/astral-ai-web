@@ -39,7 +39,8 @@ export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const { thinkingEnabled, setThinkingEnabled, toggleThinking } = usePreferences();
+  const { thinkingEnabled, setThinkingEnabled, toggleThinking } =
+    usePreferences();
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
@@ -240,7 +241,14 @@ export default function ChatView() {
       if (enableThinking) setThinkingEnabled(true);
       handleSend(msg);
     }, 0);
-  }, [handleSend, location.pathname, location.state, navigate, setThinkingEnabled, urlId]);
+  }, [
+    handleSend,
+    location.pathname,
+    location.state,
+    navigate,
+    setThinkingEnabled,
+    urlId,
+  ]);
 
   const handleSelect = useCallback(
     (id: string) => {
