@@ -384,10 +384,7 @@ export default function ChatView() {
       />
       <main
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(140deg, var(--bg-start), var(--bg-mid) 46%, var(--bg-end))",
-        }}
+        style={{ background: "var(--base-bg)" }}
       >
         <ChatHeader
           title={activeConv?.title ?? "新聊天"}
