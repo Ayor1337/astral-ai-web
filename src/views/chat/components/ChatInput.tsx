@@ -38,7 +38,7 @@ export default function ChatInput({
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [modelOpen]);
+  }, [modelOpen]);  
 
   const handleSend = () => {
     if (!value.trim() || disabled) return;

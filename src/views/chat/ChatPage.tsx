@@ -196,6 +196,21 @@ export default function ChatView() {
             prev.map((m) => {
               if (m.id !== msgId) return m;
               const steps = m.traceSteps ? [...m.traceSteps] : [];
+
+              // tool_end 事件：通过 parent_step_id 找到对应的 tool_call 节点并标记完成
+              if (step.type === "tool_end" && step.parent_step_id) {
+                const parentIdx = steps.findIndex(
+                  (s) => s.step_id === step.parent_step_id,
+                );
+                if (parentIdx >= 0) {
+                  steps[parentIdx] = {
+                    ...steps[parentIdx],
+                    status: step.status,
+                  };
+                }
+                return { ...m, traceSteps: steps };
+              }
+
               const idx = steps.findIndex((s) => s.step_id === step.step_id);
               if (idx >= 0) {
                 // thinking/running 既可能是增量，也可能是当前完整快照，需智能合并。

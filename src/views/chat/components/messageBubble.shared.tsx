@@ -30,7 +30,9 @@ export function formatTime(ts: string) {
 }
 
 export function buildTraceTree(steps: TraceStep[]): TraceNode[] {
-  const sorted = [...steps].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const sorted = [...steps]
+    .filter((s) => s.type !== "tool_end")
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const nodeMap = new Map<string, TraceNode>();
   for (const step of sorted) nodeMap.set(step.step_id, { step, children: [] });
   const roots: TraceNode[] = [];

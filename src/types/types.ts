@@ -25,7 +25,6 @@ export interface ToolCardPayload {
   output?: unknown;
 }
 
-
 // ── Trace step (structured execution trace) ─────────
 
 export interface TraceStep {
@@ -37,14 +36,15 @@ export interface TraceStep {
     | "fetch"
     | "tool_call"
     | "tool_result"
+    | "tool_end"
     | "retry"
     | "other";
   status: "pending" | "running" | "success" | "error" | "skipped";
   title?: string;
   message?: string;
-  thinking?: string;     // 新增: thinking内容
-  signature?: string;    // 新增: thinking签名
-  index?: number;        // 新增: thinking索引
+  thinking?: string; // 新增: thinking内容
+  signature?: string; // 新增: thinking签名
+  index?: number; // 新增: thinking索引
   url?: string;
   query?: string;
   result_count?: number;
@@ -59,7 +59,6 @@ export interface TraceStep {
   order?: number;
   payload?: Record<string, unknown>;
 }
-
 
 // ── Frontend message ─────────────────────────────────
 
