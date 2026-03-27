@@ -6,6 +6,8 @@ interface Props {
   disabled?: boolean;
   thinkingEnabled?: boolean;
   onThinkingToggle?: () => void;
+  searchEnabled?: boolean;
+  onSearchToggle?: () => void;
   centered?: boolean;
 }
 
@@ -15,12 +17,16 @@ export default function ChatInput({
   disabled,
   thinkingEnabled,
   onThinkingToggle,
+  searchEnabled,
+  onSearchToggle,
   centered,
 }: Props) {
   const [value, setValue] = useState("");
   const [modelOpen, setModelOpen] = useState(false);
+  const [attachOpen, setAttachOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownWrapRef = useRef<HTMLDivElement>(null);
+  const attachWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -38,7 +44,18 @@ export default function ChatInput({
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [modelOpen]);  
+  }, [modelOpen]);
+
+  useEffect(() => {
+    if (!attachOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!attachWrapRef.current?.contains(e.target as Node)) {
+        setAttachOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [attachOpen]);
 
   const handleSend = () => {
     if (!value.trim() || disabled) return;
@@ -68,25 +85,138 @@ export default function ChatInput({
           rows={1}
         />
         <div className="flex items-center justify-between">
-          <button
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-(--input-border) bg-transparent text-(--text-muted) transition-[background,border-color] duration-100 hover:border-(--text-muted)"
-            type="button"
-            title="Attach file"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div ref={attachWrapRef} className="relative">
+            <button
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-(--input-border) bg-transparent text-(--text-muted) transition-[background,border-color] duration-100 hover:border-(--text-muted)"
+              type="button"
+              onClick={() => setAttachOpen((v) => !v)}
+              aria-label="更多选项"
             >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+
+            {attachOpen && (
+              <div className="absolute bottom-[calc(100%+10px)] left-0 z-200 w-60 rounded-[14px] border border-(--surface-border) bg-(--surface-bg2) p-1.5 shadow-[0_8px_32px_var(--surface-shadow),0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur-[20px]">
+                <button
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-left opacity-40"
+                  type="button"
+                  disabled
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--surface-active) text-(--text-muted)">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                    </svg>
+                  </span>
+                  <span className="text-[0.875rem] text-(--text-base)">
+                    Add files or photos
+                  </span>
+                </button>
+
+                <button
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-left opacity-40"
+                  type="button"
+                  disabled
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--surface-active) text-(--text-muted)">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                      <circle cx="12" cy="13" r="3" />
+                    </svg>
+                  </span>
+                  <span className="text-[0.875rem] text-(--text-base)">
+                    Take a screenshot
+                  </span>
+                </button>
+
+                <div className="mx-1.5 my-1 h-px bg-(--border)" />
+
+                <button
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors duration-100 hover:bg-(--surface-active)"
+                  type="button"
+                  onClick={() => {
+                    onSearchToggle?.();
+                  }}
+                >
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                      (searchEnabled ?? true)
+                        ? "bg-[rgba(0,122,255,0.12)] text-[#007aff]"
+                        : "bg-(--surface-active) text-(--text-muted)"
+                    }`}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      <path d="M2 12h20" />
+                    </svg>
+                  </span>
+                  <span
+                    className={`flex-1 text-[0.875rem] font-medium ${
+                      (searchEnabled ?? true)
+                        ? "text-[#007aff]"
+                        : "text-(--text-base)"
+                    }`}
+                  >
+                    Web search
+                  </span>
+                  {(searchEnabled ?? true) && (
+                    <svg
+                      className="shrink-0 text-[#007aff]"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-2.5">
             <div ref={dropdownWrapRef} className="relative">

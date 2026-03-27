@@ -23,7 +23,8 @@ export default function NewChatPage() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const { thinkingEnabled, toggleThinking } = usePreferences();
+  const { thinkingEnabled, toggleThinking, searchEnabled, toggleSearch } =
+    usePreferences();
   // exc
   const username = "长期素世";
 
@@ -38,10 +39,10 @@ export default function NewChatPage() {
   const handleSend = useCallback(
     (content: string) => {
       navigate("/chat", {
-        state: { initialMessage: content, thinkingEnabled },
+        state: { initialMessage: content, thinkingEnabled, searchEnabled },
       });
     },
-    [navigate, thinkingEnabled],
+    [navigate, thinkingEnabled, searchEnabled],
   );
 
   const handleSelect = useCallback(
@@ -110,6 +111,8 @@ export default function NewChatPage() {
               onSend={handleSend}
               thinkingEnabled={thinkingEnabled}
               onThinkingToggle={toggleThinking}
+              searchEnabled={searchEnabled}
+              onSearchToggle={toggleSearch}
               centered
             />
           </div>

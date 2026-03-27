@@ -3,7 +3,6 @@
 export interface SearchResultItem {
   title: string;
   url: string;
-  domain: string;
   snippet?: string;
 }
 
@@ -45,6 +44,7 @@ export interface TraceStep {
   thinking?: string; // 新增: thinking内容
   signature?: string; // 新增: thinking签名
   index?: number; // 新增: thinking索引
+  kind?: string;
   url?: string;
   query?: string;
   result_count?: number;

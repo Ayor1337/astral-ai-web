@@ -56,8 +56,13 @@ export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const { thinkingEnabled, setThinkingEnabled, toggleThinking } =
-    usePreferences();
+  const {
+    thinkingEnabled,
+    setThinkingEnabled,
+    toggleThinking,
+    searchEnabled,
+    toggleSearch,
+  } = usePreferences();
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
@@ -134,7 +139,7 @@ export default function ChatView() {
       firstChunkRef.current = false;
       streamingMsgIdRef.current = null;
 
-      streamChat(activeId, content, thinkingEnabled, {
+      streamChat(activeId, content, thinkingEnabled, searchEnabled, {
         onConversation: (conversationId, title, runId) => {
           runIdRef.current = runId;
           if (activeIdRef.current === null) {
@@ -279,6 +284,7 @@ export default function ChatView() {
     const state = location.state as {
       initialMessage?: string;
       thinkingEnabled?: boolean;
+      searchEnabled?: boolean;
     } | null;
     if (!state?.initialMessage) return;
     autoSentRef.current = true;
@@ -423,6 +429,8 @@ export default function ChatView() {
           disabled={isBusy}
           thinkingEnabled={thinkingEnabled}
           onThinkingToggle={toggleThinking}
+          searchEnabled={searchEnabled}
+          onSearchToggle={toggleSearch}
         />
       </main>
     </div>

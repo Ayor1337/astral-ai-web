@@ -62,26 +62,16 @@ function SearchPayloadCard({ items }: { items: SearchResultItem[] }) {
   if (!items.length) return null;
 
   return (
-    <div className="mt-2 flex flex-col gap-2">
+    <div className="mt-2 rounded-lg border border-(--surface-border) bg-(--surface) px-3 py-2 flex flex-col gap-1.5">
       {items.map((item, index) => (
         <a
           key={index}
           href={item.url}
           target="_blank"
           rel="noreferrer noopener"
-          className="flex flex-col gap-1 rounded-lg border border-(--surface-border) bg-(--surface) px-3 py-2 transition-colors duration-100 hover:bg-(--surface-active)"
+          className="truncate text-[0.75rem] text-(--text-muted) underline-offset-2 hover:text-(--text-base) hover:underline"
         >
-          <span className="text-[11px] uppercase tracking-[0.08em] text-(--text-subtle)">
-            {item.domain}
-          </span>
-          <span className="text-[0.8125rem] font-medium text-(--text-base)">
-            {item.title}
-          </span>
-          {item.snippet && (
-            <span className="text-[0.75rem] leading-[1.45] text-(--text-muted)">
-              {item.snippet}
-            </span>
-          )}
+          {item.title}
         </a>
       ))}
     </div>
@@ -90,7 +80,8 @@ function SearchPayloadCard({ items }: { items: SearchResultItem[] }) {
 
 function TracePayloadCard({ step }: { step: TraceStep }) {
   if (step.type === "search" && step.payload) {
-    const items = (step.payload.items as SearchResultItem[] | undefined) ?? [];
+    const items =
+      (step.payload.results as SearchResultItem[] | undefined) ?? [];
     return <SearchPayloadCard items={items} />;
   }
 
@@ -229,7 +220,10 @@ function TraceStepItem({
                   : "text-(--text-muted)"
               }
             >
-              {step.title ?? step.tool_name ?? step.type}
+              {step.type === "search"
+                ? (step.query ??
+                  (step.status === "running" ? "搜索中…" : "search"))
+                : (step.title ?? step.tool_name ?? step.type)}
             </span>
             {step.duration_ms != null && (
               <span className="ml-auto shrink-0 text-[0.6875rem] text-(--text-subtle)">

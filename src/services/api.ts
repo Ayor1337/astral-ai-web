@@ -101,12 +101,14 @@ export async function streamChat(
   conversationId: string | null,
   message: string,
   thinkingEnabled: boolean,
+  searchEnabled: boolean,
   callbacks: StreamCallbacks,
 ): Promise<void> {
   // 按需组装请求体，避免可选字段以空值形式发送
   const body: Record<string, unknown> = { message };
   if (conversationId) body.conversation_id = conversationId;
   if (thinkingEnabled) body.thinking_enabled = true;
+  if (searchEnabled) body.search_enabled = true;
 
   let res: Response;
   try {
