@@ -9,8 +9,8 @@ import {
   buildTraceTree,
   type TimelineEntry,
   type TraceNode,
-  Spinner,
-} from "./messageBubble.shared.tsx";
+} from "./messageBubble.utils";
+import { Spinner } from "./messageBubble.shared.tsx";
 
 function ThoughtStepItem({
   step,

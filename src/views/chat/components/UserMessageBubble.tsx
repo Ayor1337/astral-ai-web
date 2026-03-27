@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Message } from "@/types/types";
 import { CopyButton, RetryButton } from "./MessageBubbleActions";
-import { formatTime, iconButtonClass } from "./messageBubble.shared.tsx";
+import { formatTime, iconButtonClass } from "./messageBubble.utils";
 
 interface Props {
   message: Message;

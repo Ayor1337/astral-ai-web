@@ -33,7 +33,9 @@ function loadTypingLogoComponent() {
 
   const compiledModule = new Module.Module(typingLogoPath, module);
   compiledModule.filename = typingLogoPath;
-  compiledModule.paths = Module.Module._nodeModulePaths(path.dirname(typingLogoPath));
+  compiledModule.paths = Module.Module._nodeModulePaths(
+    path.dirname(typingLogoPath),
+  );
   compiledModule._compile(outputText, typingLogoPath);
   return compiledModule.exports.default;
 }

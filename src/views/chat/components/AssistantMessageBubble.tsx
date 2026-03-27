@@ -3,7 +3,7 @@ import remarkGfm from "remark-gfm";
 import type { Message } from "@/types/types";
 import { CopyButton, RetryButton } from "./MessageBubbleActions";
 import MessageBubbleReasoning from "./MessageBubbleReasoning";
-import { markdownClass } from "./messageBubble.shared.tsx";
+import { markdownClass } from "./messageBubble.utils";
 
 interface Props {
   message: Message;

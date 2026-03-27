@@ -1,0 +1,2 @@
+- ESLint 使用 react-refresh Vite 配置；聊天气泡相关 `.tsx` 文件应尽量只导出 React 组件。
+- `iconButtonClass`、`markdownClass`、`formatTime`、`buildTraceTree`、`TraceNode`、`TimelineEntry` 等非组件共享逻辑放在纯 `.ts` 文件（当前为 `src/views/chat/components/messageBubble.utils.ts`）。
