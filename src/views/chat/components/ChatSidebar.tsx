@@ -167,7 +167,7 @@ export default function ChatSidebar({
               {renamingId === conv.id ? (
                 <input
                   ref={renameInputRef}
-                  className="min-w-0 flex-1 rounded-md border border-(--highlight) bg-(--surface) px-1.5 py-0.5 text-[0.8125rem] text-(--text-base) outline-none"
+                  className="min-w-0 flex-1 rounded-md border border-(--highlight) bg-(--surface) px-1.5 py-0.5 text-[0.8125rem] text-(-  -text-base) outline-none"
                   value={renameText}
                   onChange={(e) => setRenameText(e.target.value)}
                   onBlur={() => commitRename(conv.id)}
@@ -178,7 +178,7 @@ export default function ChatSidebar({
                   onClick={(e) => e.stopPropagation()}
                 />
               ) : (
-                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] text-(--text-base)">
+                <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap select-none text-[0.8125rem] text-(--text-base)">
                   {conv.title}
                 </span>
               )}

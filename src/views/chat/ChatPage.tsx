@@ -406,6 +406,7 @@ export default function ChatView() {
           onRename={(title) =>
             activeId && handleRenameConversation(activeId, title)
           }
+          onDelete={() => activeId && handleDeleteConversation(activeId)}
           thinkingEnabled={thinkingEnabled}
         />
         <MessageList
