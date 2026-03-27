@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { THINKING_LOGO_PATH, STREAMING_LOGO_PATH } from "./Idle";
+import { THINKING_LOGO_PATH, STREAMING_LOGO_PATH } from "../../../assets/Chat_Idle";
 
 type TypingState = "idle" | "thinking" | "streaming";
 
