@@ -102,7 +102,7 @@ export default function ChatHeader({ title, onRename, onDelete }: Props) {
                   </svg>
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute left-0 top-full z-50 mt-1.5 min-w-[112px] overflow-hidden rounded-lg border border-(--surface-border) bg-(--surface) shadow-lg">
+                  <div className="absolute left-0 top-full z-50 mt-1.5 min-w-28 overflow-hidden rounded-lg border border-(--surface-border) bg-(--surface) shadow-lg">
                     <button
                       className="w-full px-3 py-1.5 text-left text-[0.8125rem] text-(--text-base) transition-colors hover:bg-(--sidebar-hover)"
                       onClick={startEdit}
