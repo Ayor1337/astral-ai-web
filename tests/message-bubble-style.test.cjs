@@ -10,6 +10,7 @@ const messageBubblePath = path.join(
   "views",
   "chat",
   "components",
+  "bubble",
   "MessageBubble.tsx",
 );
 
