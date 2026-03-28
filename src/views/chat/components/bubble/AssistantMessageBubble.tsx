@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { Message } from "@/types/types";
 import { CopyButton, RetryButton } from "./MessageBubbleActions";
-import MessageBubbleReasoning from "./MessageBubbleReasoning";
+import ReasoningPanel from "./reasoning/ReasoningPanel";
 import { markdownClass } from "./messageBubble.utils";
 
 interface Props {
@@ -20,7 +20,7 @@ export default function AssistantMessageBubble({
 }: Props) {
   return (
     <div className="group/message flex flex-col items-start gap-1">
-      <MessageBubbleReasoning traceSteps={message.traceSteps} />
+      <ReasoningPanel traceSteps={message.traceSteps} />
 
       <div className={markdownClass}>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
