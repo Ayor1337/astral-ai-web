@@ -7,8 +7,8 @@ import type { Conversation } from "@/types/types";
 import ChatSidebar from "@/views/chat/components/ChatSidebar";
 
 const NAV_ITEMS = [
-  { path: "/settings/general", label: "General" },
-  { path: "/settings/account", label: "Account" },
+  { path: "/settings/general", label: "总览" },
+  { path: "/settings/account", label: "账号" },
 ] as const;
 
 export default function SettingsLayout() {
@@ -42,17 +42,14 @@ export default function SettingsLayout() {
       />
 
       {/* Right panel */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex pl-10 py-4 flex-1 overflow-hidden">
         {/* Settings nav */}
-        <nav
-          className="w-56 shrink-0 overflow-y-auto px-4 py-10"
-          style={{ borderRight: "1px solid var(--sidebar-border)" }}
-        >
+        <nav className="w-56 shrink-0 overflow-y-auto px-4 py-10">
           <h1
             className="mb-5 text-xl font-semibold"
             style={{ color: "var(--text-primary)" }}
           >
-            Settings
+            设置
           </h1>
           <ul className="flex flex-col gap-0.5">
             {NAV_ITEMS.map(({ path, label }) => (

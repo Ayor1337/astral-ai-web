@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import type { Conversation } from "@/types/types.ts";
-import ThemeToggle from "@/components/ThemeToggle";
 
 interface Props {
   conversations: Conversation[];
@@ -234,7 +233,7 @@ export default function ChatSidebar({
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
             style={{ background: "var(--user-avatar-bg)" }}
           >
-            长
+            長
           </div>
           <div className="flex min-w-0 flex-col">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] font-medium text-(--text-base)">
@@ -246,7 +245,6 @@ export default function ChatSidebar({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
-          <ThemeToggle />
           <button
             className="flex h-7 w-7 items-center justify-center rounded-md text-(--sidebar-nav-text) transition-colors duration-100 hover:bg-(--sidebar-hover)"
             title="Customize"

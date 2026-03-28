@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useTheme } from "@/hooks/useTheme";
+import type { Theme } from "@/theme/uiTheme";
 
 type ColorMode = "light" | "auto" | "dark";
 
 const COLOR_MODES: { id: ColorMode; label: string }[] = [
-  { id: "light", label: "Light" },
-  { id: "auto", label: "Auto" },
-  { id: "dark", label: "Dark" },
+  { id: "light", label: "浅色" },
+  { id: "auto", label: "自动" },
+  { id: "dark", label: "深色" },
 ];
 
 const IconChevronDown = () => (
@@ -23,6 +25,45 @@ const IconChevronDown = () => (
   </svg>
 );
 
+function CardContent({ mode }: { mode: "light" | "dark" }) {
+  const bg = mode === "light" ? "#faf9f6" : "#262624";
+  const sidebar = mode === "light" ? "#e8e2db" : "#1e1e1c";
+  const contentLine = mode === "light" ? "#000" : "#fff";
+
+  return (
+    <div className="absolute inset-0" style={{ background: bg }}>
+      {/* Mini sidebar strip */}
+      <div
+        className="absolute inset-y-0 left-0 w-6"
+        style={{ background: sidebar }}
+      />
+      {/* Content lines */}
+      <div
+        className="absolute inset-y-0 right-0 flex flex-col justify-center gap-1.5 px-2"
+        style={{ left: "1.5rem" }}
+      >
+        <div
+          className="h-1 w-9 rounded-full opacity-25"
+          style={{ background: contentLine }}
+        />
+        <div
+          className="h-1 w-7 rounded-full opacity-20"
+          style={{ background: contentLine }}
+        />
+        <div
+          className="h-1 w-11 rounded-full opacity-15"
+          style={{ background: contentLine }}
+        />
+      </div>
+      {/* Accent dot */}
+      <div
+        className="absolute bottom-2 right-2 h-2 w-2 rounded-full"
+        style={{ background: "var(--highlight)" }}
+      />
+    </div>
+  );
+}
+
 function ColorModeCard({
   id,
   label,
@@ -34,20 +75,6 @@ function ColorModeCard({
   selected: boolean;
   onClick: () => void;
 }) {
-  const configs: Record<
-    ColorMode,
-    { bg: string; sidebar: string; contentLine: string }
-  > = {
-    light: { bg: "#faf9f6", sidebar: "#e8e2db", contentLine: "#000" },
-    auto: {
-      bg: "linear-gradient(135deg, #faf9f6 50%, #262624 50%)",
-      sidebar: "#e8e2db",
-      contentLine: "#888",
-    },
-    dark: { bg: "#262624", sidebar: "#1e1e1c", contentLine: "#fff" },
-  };
-  const c = configs[id];
-
   return (
     <button
       type="button"
@@ -57,42 +84,24 @@ function ColorModeCard({
       <div
         className="relative h-20 w-28 overflow-hidden rounded-xl transition-all duration-200"
         style={{
-          background: c.bg,
           border: selected
             ? "2px solid var(--highlight)"
             : "2px solid var(--border)",
         }}
       >
-        {/* Mini sidebar strip */}
-        {id !== "auto" && (
-          <div
-            className="absolute inset-y-0 left-0 w-6"
-            style={{ background: c.sidebar }}
-          />
+        {id === "auto" ? (
+          <>
+            <CardContent mode="light" />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ clipPath: "polygon(100% 0, 100% 100%, 0 100%)" }}
+            >
+              <CardContent mode="dark" />
+            </div>
+          </>
+        ) : (
+          <CardContent mode={id} />
         )}
-        {/* Content lines */}
-        <div
-          className="absolute inset-y-0 right-0 flex flex-col justify-center gap-1.5 px-2"
-          style={{ left: id !== "auto" ? "1.5rem" : "0" }}
-        >
-          <div
-            className="h-1 w-9 rounded-full opacity-25"
-            style={{ background: c.contentLine }}
-          />
-          <div
-            className="h-1 w-7 rounded-full opacity-20"
-            style={{ background: c.contentLine }}
-          />
-          <div
-            className="h-1 w-11 rounded-full opacity-15"
-            style={{ background: c.contentLine }}
-          />
-        </div>
-        {/* Accent dot */}
-        <div
-          className="absolute bottom-2 right-2 h-2 w-2 rounded-full"
-          style={{ background: "var(--highlight)" }}
-        />
       </div>
       <span
         className="text-xs"
@@ -108,8 +117,40 @@ function ColorModeCard({
 }
 
 export default function SettingsGeneral() {
-  const [colorMode, setColorMode] = useState<ColorMode>("auto");
+  const { theme, setTheme } = useTheme();
   const [notifEnabled, setNotifEnabled] = useState(false);
+
+  const [colorMode, setColorMode] = useState<ColorMode>(() => {
+    try {
+      const stored = localStorage.getItem("astral-color-mode");
+      if (stored === "auto") return "auto";
+    } catch {
+      /* ignore */
+    }
+    return theme as ColorMode;
+  });
+
+  const handleColorMode = (mode: ColorMode) => {
+    setColorMode(mode);
+    if (mode === "auto") {
+      try {
+        localStorage.setItem("astral-color-mode", "auto");
+      } catch {
+        /* ignore */
+      }
+      const systemLight = window.matchMedia?.(
+        "(prefers-color-scheme: light)",
+      ).matches;
+      setTheme(systemLight ? "light" : "dark");
+    } else {
+      try {
+        localStorage.removeItem("astral-color-mode");
+      } catch {
+        /* ignore */
+      }
+      setTheme(mode as Theme);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-10">
@@ -119,7 +160,7 @@ export default function SettingsGeneral() {
           className="text-xl font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
-          Profile
+          个人资料
         </h2>
 
         <div className="grid grid-cols-2 gap-4">
@@ -129,7 +170,7 @@ export default function SettingsGeneral() {
               className="text-sm font-medium"
               style={{ color: "var(--text-base)" }}
             >
-              Full name
+              全名
             </label>
             <div
               className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
@@ -142,24 +183,24 @@ export default function SettingsGeneral() {
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
                 style={{ background: "var(--user-avatar-bg)" }}
               >
-                卡
+                長
               </div>
               <input
                 type="text"
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
                 style={{ color: "var(--text-base)" }}
-                defaultValue="卡川祥子"
+                defaultValue="長崎そよ"
               />
             </div>
           </div>
 
-          {/* What should Claude call you */}
+          {/* Claude 应该如何称呼你 */}
           <div className="flex flex-col gap-1.5">
             <label
               className="text-sm font-medium"
               style={{ color: "var(--text-base)" }}
             >
-              What should Claude call you?
+              应该如何称呼你？
             </label>
             <input
               type="text"
@@ -169,7 +210,7 @@ export default function SettingsGeneral() {
                 border: "1px solid var(--border)",
                 color: "var(--text-base)",
               }}
-              defaultValue="卡川祥子"
+              defaultValue="長崎そよ"
             />
           </div>
         </div>
@@ -180,7 +221,7 @@ export default function SettingsGeneral() {
             className="text-sm font-medium"
             style={{ color: "var(--text-base)" }}
           >
-            What best describes your work?
+            如何描述你的工作？
           </label>
           <div className="relative">
             <select
@@ -193,7 +234,7 @@ export default function SettingsGeneral() {
               defaultValue=""
             >
               <option value="" disabled>
-                Select your work function
+                选择你的工作职能
               </option>
             </select>
             <div
@@ -205,24 +246,14 @@ export default function SettingsGeneral() {
           </div>
         </div>
 
-        {/* Personal preferences */}
+        {/* 个人偏好 */}
         <div className="flex flex-col gap-1.5">
           <label
             className="text-sm font-medium"
             style={{ color: "var(--text-base)" }}
           >
-            What personal preferences should Claude consider in responses?
+            在回答中应考虑哪些个人偏好？
           </label>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Your preferences will apply to all conversations, within{" "}
-            <span
-              className="cursor-pointer underline"
-              style={{ color: "var(--highlight)" }}
-            >
-              Anthropic&apos;s guidelines
-            </span>
-            .
-          </p>
           <textarea
             className="min-h-24 resize-none rounded-xl px-3 py-2.5 text-sm outline-none"
             style={{
@@ -230,7 +261,7 @@ export default function SettingsGeneral() {
               border: "1px solid var(--border)",
               color: "var(--text-base)",
             }}
-            placeholder="e.g. I primarily code in Python (not a coding beginner)"
+            placeholder="例如：我主要使用 Python 编程（不是编程初学者）"
           />
         </div>
       </section>
@@ -241,7 +272,7 @@ export default function SettingsGeneral() {
           className="text-xl font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
-          Notifications
+          通知
         </h2>
         <div
           className="rounded-xl px-5 py-4"
@@ -256,14 +287,14 @@ export default function SettingsGeneral() {
                 className="text-sm font-medium"
                 style={{ color: "var(--text-base)" }}
               >
-                Response completions
+                响应完成
               </p>
               <p
                 className="max-w-sm text-xs"
                 style={{ color: "var(--text-muted)" }}
               >
-                Get notified when Claude has finished a response. Most useful
-                for long-running tasks like tool calls and Research.
+                当 Claude
+                完成响应时收到通知。对于长时间运行的任务（如工具调用和研究）最有用。
               </p>
             </div>
             <button
@@ -295,7 +326,7 @@ export default function SettingsGeneral() {
           className="text-xl font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
-          Appearance
+          外观
         </h2>
         <div
           className="rounded-xl px-5 py-4"
@@ -308,7 +339,7 @@ export default function SettingsGeneral() {
             className="mb-4 text-sm font-medium"
             style={{ color: "var(--text-base)" }}
           >
-            Color mode
+            颜色模式
           </p>
           <div className="flex gap-4">
             {COLOR_MODES.map(({ id, label }) => (
@@ -317,7 +348,7 @@ export default function SettingsGeneral() {
                 id={id}
                 label={label}
                 selected={colorMode === id}
-                onClick={() => setColorMode(id)}
+                onClick={() => handleColorMode(id)}
               />
             ))}
           </div>

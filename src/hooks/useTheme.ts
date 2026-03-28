@@ -12,6 +12,7 @@ import type { Theme } from "@/theme/uiTheme";
 interface ThemeContextValue {
   theme: Theme;
   toggle: () => void;
+  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -44,6 +45,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     () => ({
       theme,
       toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+      setTheme,
     }),
     [theme],
   );
