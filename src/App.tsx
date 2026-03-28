@@ -46,13 +46,24 @@ export default function App() {
             ASTRAL AI
           </div>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <div
-              className="text-xs uppercase tracking-[0.26em]"
-              style={{ color: "var(--text-subtle)" }}
+            <Link
+              to="/login"
+              className="text-sm font-medium transition-colors hover:opacity-80"
+              style={{ color: "var(--text-base)" }}
             >
-              Chat Native
-            </div>
+              登录
+            </Link>
+            <Link
+              to="/register"
+              className="rounded-full border px-4 py-1.5 text-sm font-medium transition-colors"
+              style={{
+                borderColor: "var(--btn-border)",
+                color: "var(--text-base)",
+              }}
+            >
+              注册
+            </Link>
+            <ThemeToggle />
           </div>
         </header>
 

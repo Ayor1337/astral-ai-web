@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { path: "/settings/account", label: "账号" },
 ] as const;
 
-export default function SettingsLayout() {
+export default function SettingsPage() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
