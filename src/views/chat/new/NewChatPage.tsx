@@ -26,7 +26,7 @@ export default function NewChatPage() {
   const { thinkingEnabled, toggleThinking, searchEnabled, toggleSearch } =
     usePreferences();
   // exc
-  const username = "长期素世";
+  const username = "長崎そよ";
 
   useEffect(() => {
     getConversations()

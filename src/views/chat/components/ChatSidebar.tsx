@@ -236,10 +236,10 @@ export default function ChatSidebar({
           </div>
           <div className="flex min-w-0 flex-col">
             <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] font-medium text-(--text-base)">
-              长崎素世
+              長崎そよ
             </span>
             <span className="text-[0.6875rem] text-(--sidebar-section-text)">
-              Owner
+              Tester
             </span>
           </div>
         </div>
