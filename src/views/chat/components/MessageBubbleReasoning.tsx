@@ -206,7 +206,7 @@ function TraceStepItem({
         style={depth > 0 ? { marginLeft: `${depth * 16}px` } : undefined}
       >
         {(!isLast || children.length > 0) && (
-          <span className="absolute left-1.75 top-[19px] bottom-0 w-[1.5px] rounded-full bg-(--text-muted) opacity-25" />
+          <span className="absolute left-1.75 top-4.75 bottom-0 w-[1.5px] rounded-full bg-(--text-muted) opacity-25" />
         )}
         <div className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center">
           <TraceStatusIcon status={step.status} />

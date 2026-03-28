@@ -266,7 +266,7 @@ export default function ChatView() {
         runIdRef.current = null;
       });
     },
-    [activeId, navigate, thinkingEnabled],
+    [activeId, navigate, thinkingEnabled, searchEnabled],
   );
 
   const handleStop = useCallback(() => {
