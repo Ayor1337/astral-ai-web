@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import { Link } from "react-router";
-import ThemeToggle from "@/components/ThemeToggle";
 import { useTheme } from "@/hooks/useTheme";
 import { getUiThemeVars } from "@/theme/uiTheme";
 
@@ -31,11 +30,10 @@ export default function RegisterPage() {
         >
           ASTRAL AI
         </Link>
-        <ThemeToggle />
       </header>
 
       <div
-        className="w-full max-w-sm rounded-[24px] border p-8 shadow-2xl mt-8"
+        className="w-full max-w-sm rounded-3xl border p-8 shadow-2xl mt-8"
         style={{
           background: "var(--surface)",
           borderColor: "var(--surface-border)",
