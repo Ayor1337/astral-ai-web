@@ -15,22 +15,15 @@ export type TimelineEntry =
   | { kind: "thinking"; step: TraceStep }
   | { kind: "trace"; node: TraceNode };
 
-export function Spinner({ subtle = false }: { subtle?: boolean }) {
-  return (
-    <span
-      className={`inline-block rounded-full border-solid animate-spin ${subtle ? "border-[1.5px] border-[color-mix(in_srgb,var(--text-muted)_25%,transparent)] border-t-(--text-muted)" : "border-[1.5px] border-(--text-subtle) border-t-(--accent)"}`}
-      style={{ width: subtle ? 14 : 12, height: subtle ? 14 : 12 }}
-    />
-  );
-}
-
 export function formatTime(ts: string) {
   const d = new Date(ts);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function buildTraceTree(steps: TraceStep[]): TraceNode[] {
-  const sorted = [...steps].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const sorted = [...steps]
+    .filter((s) => s.type !== "tool_end")
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const nodeMap = new Map<string, TraceNode>();
   for (const step of sorted) nodeMap.set(step.step_id, { step, children: [] });
   const roots: TraceNode[] = [];

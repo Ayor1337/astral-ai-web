@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { iconButtonClass } from "./messageBubble.shared.tsx";
+import { iconButtonClass } from "./messageBubble.utils";
 
 export function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);

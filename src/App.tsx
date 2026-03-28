@@ -12,11 +12,14 @@ export default function App() {
     color: "var(--text-base)",
     fontFamily: '"Sora", "Segoe UI", sans-serif',
     background:
-      "radial-gradient(circle at 82% 8%, var(--radial-a), transparent 35%), radial-gradient(circle at 15% 74%, var(--radial-b), transparent 36%), linear-gradient(140deg, var(--bg-start), var(--bg-mid) 46%, var(--bg-end))",
+      "radial-gradient(circle at 82% 8%, var(--radial-a), transparent 35%), radial-gradient(circle at 15% 74%, var(--radial-b), transparent 36%), var(--base-bg)",
   } as CSSProperties;
 
   return (
-    <main className="relative isolate min-h-screen overflow-hidden" style={pageStyle}>
+    <main
+      className="relative isolate min-h-screen overflow-hidden"
+      style={pageStyle}
+    >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-12 -top-24 -z-10 h-88 w-88 rounded-full bg-(--ambient-a) blur-[54px] max-sm:blur-[46px]"
@@ -75,7 +78,8 @@ export default function App() {
               className="max-w-xl text-base leading-7 sm:text-lg"
               style={{ color: "var(--text-muted)" }}
             >
-              一个为高频沟通设计的 AI 聊天入口。少打扰、低负担、强沉浸，让你把注意力留给真正重要的问题。
+              一个为高频沟通设计的 AI
+              聊天入口。少打扰、低负担、强沉浸，让你把注意力留给真正重要的问题。
             </p>
 
             <div>
@@ -106,13 +110,22 @@ export default function App() {
               backdropFilter: "blur(9px)",
             }}
           >
-            <p className="text-xs uppercase tracking-[0.24em]" style={{ color: "var(--text-tag)" }}>
+            <p
+              className="text-xs uppercase tracking-[0.24em]"
+              style={{ color: "var(--text-tag)" }}
+            >
               Today
             </p>
-            <p className="mt-3 text-4xl font-semibold" style={{ color: "var(--heading)" }}>
+            <p
+              className="mt-3 text-4xl font-semibold"
+              style={{ color: "var(--heading)" }}
+            >
               24/7
             </p>
-            <p className="mt-3 text-sm leading-6" style={{ color: "var(--text-muted)" }}>
+            <p
+              className="mt-3 text-sm leading-6"
+              style={{ color: "var(--text-muted)" }}
+            >
               连续在线的对话引擎，适合创作、分析与即时决策。
             </p>
             <div

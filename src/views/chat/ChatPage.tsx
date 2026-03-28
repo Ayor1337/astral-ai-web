@@ -28,6 +28,23 @@ import ChatHeader from "./components/ChatHeader";
 import MessageList from "./components/MessageList";
 import ChatInput from "./components/ChatInput";
 
+function mergeStreamingText(previous: string, incoming: string) {
+  if (!previous) return incoming;
+  if (!incoming) return previous;
+
+  // Some backends stream full snapshots, not deltas.
+  if (incoming.startsWith(previous)) return incoming;
+
+  const maxOverlap = Math.min(previous.length, incoming.length);
+  for (let size = maxOverlap; size > 0; size -= 1) {
+    if (previous.endsWith(incoming.slice(0, size))) {
+      return previous + incoming.slice(size);
+    }
+  }
+
+  return previous + incoming;
+}
+
 export default function ChatView() {
   const { theme } = useTheme();
   const { id: urlId } = useParams<{ id: string }>();
@@ -39,8 +56,13 @@ export default function ChatView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [streamingMsgId, setStreamingMsgId] = useState<string | null>(null);
-  const { thinkingEnabled, setThinkingEnabled, toggleThinking } =
-    usePreferences();
+  const {
+    thinkingEnabled,
+    setThinkingEnabled,
+    toggleThinking,
+    searchEnabled,
+    toggleSearch,
+  } = usePreferences();
 
   const firstChunkRef = useRef(false);
   const streamingMsgIdRef = useRef<string | null>(null);
@@ -117,7 +139,7 @@ export default function ChatView() {
       firstChunkRef.current = false;
       streamingMsgIdRef.current = null;
 
-      streamChat(activeId, content, thinkingEnabled, {
+      streamChat(activeId, content, thinkingEnabled, searchEnabled, {
         onConversation: (conversationId, title, runId) => {
           runIdRef.current = runId;
           if (activeIdRef.current === null) {
@@ -179,14 +201,33 @@ export default function ChatView() {
             prev.map((m) => {
               if (m.id !== msgId) return m;
               const steps = m.traceSteps ? [...m.traceSteps] : [];
+
+              // tool_end 事件：通过 parent_step_id 找到对应的 tool_call 节点并标记完成
+              if (step.type === "tool_end" && step.parent_step_id) {
+                const parentIdx = steps.findIndex(
+                  (s) => s.step_id === step.parent_step_id,
+                );
+                if (parentIdx >= 0) {
+                  steps[parentIdx] = {
+                    ...steps[parentIdx],
+                    status: step.status,
+                  };
+                }
+                return { ...m, traceSteps: steps };
+              }
+
               const idx = steps.findIndex((s) => s.step_id === step.step_id);
               if (idx >= 0) {
-                // thinking 节点 running 事件携带增量文本，需累加；success 事件才是完整文本
+                // thinking/running 既可能是增量，也可能是当前完整快照，需智能合并。
                 if (step.type === "thinking" && step.status === "running") {
+                  const previousThinking = steps[idx].thinking ?? "";
                   steps[idx] = {
+                    ...steps[idx],
                     ...step,
-                    thinking:
-                      (steps[idx].thinking ?? "") + (step.thinking ?? ""),
+                    thinking: mergeStreamingText(
+                      previousThinking,
+                      step.thinking ?? "",
+                    ),
                   };
                 } else {
                   steps[idx] = step;
@@ -225,7 +266,7 @@ export default function ChatView() {
         runIdRef.current = null;
       });
     },
-    [activeId, navigate, thinkingEnabled],
+    [activeId, navigate, thinkingEnabled, searchEnabled],
   );
 
   const handleStop = useCallback(() => {
@@ -243,6 +284,7 @@ export default function ChatView() {
     const state = location.state as {
       initialMessage?: string;
       thinkingEnabled?: boolean;
+      searchEnabled?: boolean;
     } | null;
     if (!state?.initialMessage) return;
     autoSentRef.current = true;
@@ -363,16 +405,14 @@ export default function ChatView() {
       />
       <main
         className="flex min-w-0 flex-1 flex-col overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(140deg, var(--bg-start), var(--bg-mid) 46%, var(--bg-end))",
-        }}
+        style={{ background: "var(--base-bg)" }}
       >
         <ChatHeader
           title={activeConv?.title ?? "新聊天"}
           onRename={(title) =>
             activeId && handleRenameConversation(activeId, title)
           }
+          onDelete={() => activeId && handleDeleteConversation(activeId)}
           thinkingEnabled={thinkingEnabled}
         />
         <MessageList
@@ -389,6 +429,8 @@ export default function ChatView() {
           disabled={isBusy}
           thinkingEnabled={thinkingEnabled}
           onThinkingToggle={toggleThinking}
+          searchEnabled={searchEnabled}
+          onSearchToggle={toggleSearch}
         />
       </main>
     </div>

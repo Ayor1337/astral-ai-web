@@ -4,16 +4,22 @@ const STORAGE_KEY = "astral-preferences";
 
 interface Preferences {
   thinkingEnabled: boolean;
+  searchEnabled: boolean;
 }
 
 function readPrefs(): Preferences {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { thinkingEnabled: false, ...JSON.parse(raw) };
+    if (raw)
+      return {
+        thinkingEnabled: false,
+        searchEnabled: true,
+        ...JSON.parse(raw),
+      };
   } catch {
     /* ignore */
   }
-  return { thinkingEnabled: false };
+  return { thinkingEnabled: false, searchEnabled: true };
 }
 
 function writePrefs(prefs: Preferences): void {
@@ -43,9 +49,19 @@ export function usePreferences() {
     });
   }, []);
 
+  const toggleSearch = useCallback(() => {
+    setPrefs((prev) => {
+      const next = { ...prev, searchEnabled: !prev.searchEnabled };
+      writePrefs(next);
+      return next;
+    });
+  }, []);
+
   return {
     thinkingEnabled: prefs.thinkingEnabled,
+    searchEnabled: prefs.searchEnabled,
     setThinkingEnabled,
     toggleThinking,
+    toggleSearch,
   };
 }

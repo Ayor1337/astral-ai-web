@@ -5,9 +5,7 @@ export type Theme = "dark" | "light";
 export function getUiThemeVars(theme: Theme): CSSProperties {
   if (theme === "light") {
     return {
-      "--bg-start": "#faf9f6",
-      "--bg-mid": "#f5f0eb",
-      "--bg-end": "#ede8e2",
+      "--base-bg": "#faf9f6",
       "--radial-a": "rgba(218, 119, 86, 0.1)",
       "--radial-b": "rgba(200, 150, 100, 0.08)",
       "--surface": "rgba(255, 255, 255, 0.72)",
@@ -63,9 +61,7 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
   }
 
   return {
-    "--bg-start": "#1a1915",
-    "--bg-mid": "#242220",
-    "--bg-end": "#151311",
+    "--base-bg": "#262624",
     "--radial-a": "rgba(218, 119, 86, 0.12)",
     "--radial-b": "rgba(200, 140, 100, 0.1)",
     "--surface": "rgba(45, 40, 36, 0.6)",
@@ -99,7 +95,7 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
     "--text-secondary": "rgba(210, 200, 185, 0.82)",
     "--surface-active": "rgba(255, 255, 255, 0.05)",
     "--accent": "#da7756",
-    "--sidebar-bg": "#1a1816",
+    "--sidebar-bg": "#262624",
     "--sidebar-border": "rgba(255, 255, 255, 0.06)",
     "--sidebar-hover": "rgba(255, 255, 255, 0.06)",
     "--sidebar-active": "rgba(255, 255, 255, 0.1)",
@@ -108,7 +104,7 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
     "--header-border": "rgba(255, 255, 255, 0.06)",
     "--msg-user-bg": "#3d3530",
     "--msg-user-text": "#eeebe6",
-    "--input-bg": "rgba(45, 40, 36, 1)",
+    "--input-bg": "#30302E",
     "--input-border": "rgba(255, 245, 230, 0.12)",
     "--input-send-bg": "rgba(255, 255, 255, 0.12)",
     "--input-send-disabled": "rgba(120, 110, 95, 0.2)",

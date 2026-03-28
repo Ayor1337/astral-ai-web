@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Message } from "@/types/types";
-import MessageBubble from "./MessageBubble";
+import MessageBubble from "./bubble/MessageBubble";
 import TypingLogo from "./TypingLogo";
 
 interface Props {
@@ -41,8 +41,8 @@ export default function MessageList({
       ? "streaming"
       : "idle";
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "auto") => {
+    bottomRef.current?.scrollIntoView({ behavior });
   }, []);
 
   const handleIdleLogoClick = useCallback(() => {
@@ -58,7 +58,7 @@ export default function MessageList({
 
   useEffect(() => {
     if (isNearBottomRef.current || isTyping || streamingMsgId != null) {
-      scrollToBottom();
+      scrollToBottom("auto");
     }
   }, [messages, isTyping, streamingMsgId, scrollToBottom]);
 
@@ -134,7 +134,7 @@ export default function MessageList({
       {showScrollBtn && (
         <button
           className="sticky bottom-4 left-1/2 z-10 flex h-8 w-8 -translate-x-1/2 items-center justify-center rounded-full border border-(--scroll-btn-border) bg-(--scroll-btn-bg) text-(--text-muted) shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-[opacity,transform] duration-180 hover:opacity-80"
-          onClick={scrollToBottom}
+          onClick={() => scrollToBottom("smooth")}
           aria-label="Scroll to bottom"
           type="button"
         >

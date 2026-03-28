@@ -11,7 +11,7 @@ interface Props {
   centered?: boolean;
 }
 
-export default function ChatInput({
+export default function NewPageChatInput({
   onSend,
   onStop,
   disabled,
@@ -74,11 +74,11 @@ export default function ChatInput({
     <div
       className={`w-full shrink-0 ${centered ? "mx-auto px-0 pb-0" : "mx-auto max-w-3xl px-6 pb-3"}`}
     >
-      <div className="flex flex-col justify-between h-25 gap-2 rounded-[18px] border border-(--input-border) bg-(--input-bg) px-3.5 pb-2 pt-3 transition-colors duration-200 focus-within:border-(--highlight)">
+      <div className="flex flex-col justify-between gap-2 rounded-[18px] border h-35 border-(--input-border) bg-(--input-bg) px-3.5 pb-2 pt-3 transition-colors duration-200 focus-within:border-(--highlight)">
         <textarea
           ref={textareaRef}
           className="max-h-36 w-full resize-none overflow-y-auto border-none bg-transparent text-[0.9375rem] leading-6 text-(--text-base) outline-none placeholder:text-(--text-footer)"
-          placeholder="Reply..."
+          placeholder="How can I help you?"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
