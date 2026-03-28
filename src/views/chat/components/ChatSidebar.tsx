@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import type { Conversation } from "@/types/types.ts";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -93,6 +94,7 @@ export default function ChatSidebar({
   onDeleteConversation,
   onRenameConversation,
 }: Props) {
+  const navigate = useNavigate();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameText, setRenameText] = useState("");
@@ -249,6 +251,7 @@ export default function ChatSidebar({
             className="flex h-7 w-7 items-center justify-center rounded-md text-(--sidebar-nav-text) transition-colors duration-100 hover:bg-(--sidebar-hover)"
             title="Customize"
             type="button"
+            onClick={() => navigate("/settings/general")}
           >
             <IconCustomize />
           </button>

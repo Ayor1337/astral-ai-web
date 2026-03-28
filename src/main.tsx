@@ -6,6 +6,9 @@ import App from "./App.tsx";
 import { ThemeProvider } from "./hooks/useTheme";
 import ChatView from "@/views/chat/ChatPage.tsx";
 import NewChatPage from "@/views/chat/new/NewChatPage.tsx";
+import SettingsLayout from "@/views/settings/SettingsLayout.tsx";
+import SettingsGeneral from "@/views/settings/SettingsGeneral.tsx";
+import SettingsAccount from "@/views/settings/SettingsAccount.tsx";
 
 document.documentElement.style.minHeight = "100%";
 document.body.style.minHeight = "100%";
@@ -24,6 +27,10 @@ createRoot(root).render(
           <Route path="/new" element={<NewChatPage />} />
           <Route path="/chat" element={<ChatView />} />
           <Route path="/chat/:id" element={<ChatView />} />
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route path="general" element={<SettingsGeneral />} />
+            <Route path="account" element={<SettingsAccount />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
