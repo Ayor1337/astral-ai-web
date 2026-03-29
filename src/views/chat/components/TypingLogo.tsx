@@ -35,13 +35,8 @@ export default function TypingLogo({ state, onIdleClick }: Props) {
     className:
       "h-7 w-7 shrink-0 overflow-hidden text-(--accent) transition-[opacity,filter] duration-300",
     style: {
-      opacity: state === "idle" ? 0.9 : state === "streaming" ? 0.96 : 1,
-      filter:
-        state === "idle"
-          ? "none"
-          : state === "thinking"
-            ? "drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 82%, transparent))"
-            : "drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 18%, transparent))",
+      opacity: 1,
+      filter: "none",
     },
   } as const;
 
