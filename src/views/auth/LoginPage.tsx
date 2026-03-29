@@ -65,8 +65,8 @@ export default function LoginPage() {
           欢迎回来
         </h1>
 
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="space-y-1.5">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-2.5">
             <label
               htmlFor="username"
               className="px-1 text-sm font-medium"
@@ -80,17 +80,17 @@ export default function LoginPage() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
+              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none mt-2"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="your_username"
+              placeholder="请输入用户名"
             />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label
               htmlFor="password"
               className="px-1 text-sm font-medium"
@@ -104,13 +104,13 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
+              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none mt-2"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="••••••••"
+              placeholder="请输入密码"
             />
           </div>
 

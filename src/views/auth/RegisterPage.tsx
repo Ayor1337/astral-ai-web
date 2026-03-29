@@ -67,10 +67,10 @@ export default function RegisterPage() {
         </h1>
 
         <form
-          className="space-y-4"
+          className="space-y-5"
           onSubmit={handleSubmit}
         >
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label
               htmlFor="username"
               className="px-1 text-sm font-medium"
@@ -84,17 +84,17 @@ export default function RegisterPage() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
+              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none mt-2"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="your_username"
+              placeholder="请输入用户名"
             />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label
               htmlFor="nickname"
               className="px-1 text-sm font-medium"
@@ -108,7 +108,7 @@ export default function RegisterPage() {
               required
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
+              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none mt-2"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
@@ -118,7 +118,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
+          <div className="space-y-2.5">
             <label
               htmlFor="password"
               className="px-1 text-sm font-medium"
@@ -132,13 +132,13 @@ export default function RegisterPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
+              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none mt-2"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="••••••••"
+              placeholder="请输入密码"
             />
           </div>
 
