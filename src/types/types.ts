@@ -96,3 +96,19 @@ export interface MessageAPI {
 export interface ConversationDetail extends ConversationSummary {
   messages: MessageAPI[];
 }
+
+// ── Auth types ───────────────────────────────────────
+
+export interface AuthUser {
+  id: string;
+  username: string;
+  nickname: string;
+  created_at: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  user: AuthUser;
+}

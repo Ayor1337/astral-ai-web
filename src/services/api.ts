@@ -2,21 +2,80 @@ import type {
   ConversationSummary,
   ConversationDetail,
   TraceStep,
+  AuthUser,
+  AuthResponse,
 } from "../types/types";
 
 /** 后端服务的基础地址 */
 const BASE_URL = "http://127.0.0.1:8000";
 
+/** 从 localStorage 读取 token，返回含 Authorization 头的对象 */
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+// ── Auth API ─────────────────────────────────────────
+
+/** 登录，返回 token 和用户信息 */
+export async function loginApi(
+  username: string,
+  password: string,
+): Promise<AuthResponse> {
+  const res = await fetch(`${BASE_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "login failed" }));
+    throw new Error((err as { detail?: string }).detail ?? "login failed");
+  }
+  return res.json();
+}
+
+/** 注册新用户，返回 token 和用户信息 */
+export async function registerApi(
+  username: string,
+  nickname: string,
+  password: string,
+): Promise<AuthResponse> {
+  const res = await fetch(`${BASE_URL}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, nickname, password }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "register failed" }));
+    throw new Error((err as { detail?: string }).detail ?? "register failed");
+  }
+  return res.json();
+}
+
+/** 获取当前登录用户的信息 */
+export async function getMe(): Promise<AuthUser> {
+  const res = await fetch(`${BASE_URL}/api/auth/me`, {
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error(`getMe failed: ${res.status}`);
+  return res.json();
+}
+
 /** 创建新会话，返回会话摘要信息 */
 export async function createConversation(): Promise<ConversationSummary> {
-  const res = await fetch(`${BASE_URL}/api/conversations`, { method: "POST" });
+  const res = await fetch(`${BASE_URL}/api/conversations`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`createConversation failed: ${res.status}`);
   return res.json();
 }
 
 /** 获取所有会话的摘要列表 */
 export async function getConversations(): Promise<ConversationSummary[]> {
-  const res = await fetch(`${BASE_URL}/api/conversations`);
+  const res = await fetch(`${BASE_URL}/api/conversations`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`getConversations failed: ${res.status}`);
   return res.json();
 }
@@ -25,7 +84,9 @@ export async function getConversations(): Promise<ConversationSummary[]> {
 export async function getConversationDetail(
   id: string,
 ): Promise<ConversationDetail> {
-  const res = await fetch(`${BASE_URL}/api/conversations/${id}`);
+  const res = await fetch(`${BASE_URL}/api/conversations/${id}`, {
+    headers: authHeaders(),
+  });
   if (!res.ok) throw new Error(`getConversationDetail failed: ${res.status}`);
   return res.json();
 }
@@ -37,7 +98,7 @@ export async function updateConversationTitle(
 ): Promise<ConversationSummary> {
   const res = await fetch(`${BASE_URL}/api/conversations/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ title }),
   });
   if (!res.ok) throw new Error(`updateConversationTitle failed: ${res.status}`);
@@ -48,6 +109,7 @@ export async function updateConversationTitle(
 export async function deleteConversation(id: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/api/conversations/${id}`, {
     method: "DELETE",
+    headers: authHeaders(),
   });
   if (!res.ok) throw new Error(`deleteConversation failed: ${res.status}`);
 }
@@ -58,6 +120,7 @@ export async function stopChatRun(runId: string): Promise<void> {
     `${BASE_URL}/api/chat/runs/${encodeURIComponent(runId)}/stop`,
     {
       method: "POST",
+      headers: authHeaders(),
     },
   );
   // 404 说明 run 已经结束，视为成功，无需报错
@@ -117,6 +180,7 @@ export async function streamChat(
       headers: {
         "Content-Type": "application/json",
         Accept: "text/event-stream",
+        ...authHeaders(),
       },
       body: JSON.stringify(body),
     });

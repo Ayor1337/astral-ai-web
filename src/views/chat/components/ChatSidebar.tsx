@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import type { Conversation } from "@/types/types.ts";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
   conversations: Conversation[];
@@ -107,6 +108,7 @@ export default function ChatSidebar({
   onRenameConversation,
 }: Props) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatsCollapsed, setChatsCollapsed] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -342,7 +344,7 @@ export default function ChatSidebar({
           }`}
           style={{ background: "var(--user-avatar-bg)" }}
         >
-          長
+          {user?.username?.[0] ?? "用"}
         </div>
       </div>
     </aside>

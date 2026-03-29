@@ -28,6 +28,7 @@
 新建文件，采用与现有 `ThemeProvider` 完全相同的 Context 模式。
 
 **Context 数据结构：**
+
 ```ts
 interface AuthUser {
   id: string;
@@ -41,32 +42,41 @@ interface AuthState {
   user: AuthUser | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, nickname: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    nickname: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => void;
 }
 ```
 
 **持久化策略：**
+
 - localStorage key：`auth_token`（string）、`auth_user`（JSON string）
 - 应用启动时从 localStorage 读取初始状态
 - 登录/注册成功后写入 localStorage
 - `logout()` 清除 localStorage，重置 Context，跳转 `/login`
 
 **Token 过期处理策略：**
+
 - `AuthProvider` 初始化时（页面刷新/首次加载），若 localStorage 中存在 token，调用 `GET /api/auth/me` 验证有效性
 - 若 `/api/auth/me` 返回 401，清除 localStorage 并将 `token`/`user` 置 null（用户需重新登录）
 - 若 `/api/auth/me` 成功，使用返回的最新用户信息更新 `user` state
 - 验证期间使用内部 `isInitializing` state 控制，路由守卫在初始化完成前渲染 null（避免闪烁跳转）
 
 **isLoading 语义：**
+
 - `isLoading` 仅表示 `login()` / `register()` 请求进行中，用于控制按钮禁用状态
 - 初始化验证使用独立的内部 `isInitializing` state，不对外暴露
 
 **跳转职责：**
+
 - `login()` / `register()` 只负责状态更新，**不包含导航逻辑**
 - 跳转由 `LoginPage` / `RegisterPage` 组件在 `await login()` 成功后调用 `navigate('/chat')`
 
 **错误处理：**
+
 - `login` / `register` 抛出 `Error`，message 为后端返回的 `detail` 字段
 - 调用方（页面组件）捕获错误并展示 inline 错误提示
 
@@ -75,11 +85,13 @@ interface AuthState {
 ### API 层补全：`src/services/api.ts`
 
 **API 层认证头实现说明：**
+
 - `authHeaders()` 直接读取 `localStorage['auth_token']`（简化设计，接受与 Context 状态双源）
 - 401 响应处理不在本期范围（与 token 刷新一并推后，属已知简化）
 - `streamChat` 同样需在请求头中加入认证 token
 
 **新增认证函数：**
+
 ```ts
 login(username, password) → AuthResponse
 register(username, nickname, password) → AuthResponse
@@ -87,6 +99,7 @@ getMe() → AuthUser
 ```
 
 **AuthResponse 结构：**
+
 ```ts
 interface AuthResponse {
   access_token: string;
@@ -105,11 +118,13 @@ interface AuthResponse {
 ### 登录页修正：`src/views/auth/LoginPage.tsx`
 
 **字段变更：**
+
 - 移除「邮箱」字段（`type="email"`）
 - 改为「用户名」字段（`id="username"`，`type="text"`）
 - 密码字段保持不变
 
 **交互行为：**
+
 - 提交时调用 `useAuth().login(username, password)`
 - 成功：`navigate("/chat")`
 - 失败：在提交按钮上方展示 inline 错误文字（红色，`text-sm`）
@@ -120,6 +135,7 @@ interface AuthResponse {
 ### 注册页修正：`src/views/auth/RegisterPage.tsx`
 
 **字段变更：**
+
 - 移除「邮箱」字段
 - 移除「确认密码」字段
 - 保留「用户名」（`username`）
@@ -128,15 +144,16 @@ interface AuthResponse {
 
 **字段映射（注册页）：**
 
-| UI 标签 | 表单字段名 | API 字段 |
-|---------|-----------|---------|
-| 用户名 | `username` | `username` |
-| 昵称 | `nickname` | `nickname` |
-| 密码 | `password` | `password` |
+| UI 标签 | 表单字段名 | API 字段   |
+| ------- | ---------- | ---------- |
+| 用户名  | `username` | `username` |
+| 昵称    | `nickname` | `nickname` |
+| 密码    | `password` | `password` |
 
 **字段顺序：** 用户名 → 昵称 → 密码
 
 **交互行为：**
+
 - 提交时调用 `useAuth().register(username, nickname, password)`
 - 成功：`navigate("/chat")`
 - 失败：inline 错误提示（同登录页风格）
@@ -147,6 +164,7 @@ interface AuthResponse {
 ### 路由守卫：`src/main.tsx`
 
 **组件树层级（关键）：**
+
 ```
 <ThemeProvider>
   <AuthProvider>           ← 必须在 BrowserRouter 外层
@@ -186,25 +204,27 @@ function RedirectIfAuthed({ children }) {
 
 **路由保护配置：**
 
-| 路径 | 守卫 | 说明 |
-|------|------|------|
-| `/` | 无 | 公开欢迎页，已登录仍可访问 |
-| `/login` | `RedirectIfAuthed` | 已登录跳 `/chat` |
-| `/register` | `RedirectIfAuthed` | 已登录跳 `/chat` |
-| `/new` | `RequireAuth` | 未登录跳 `/login` |
-| `/chat` | `RequireAuth` | 未登录跳 `/login` |
-| `/chat/:id` | `RequireAuth` | 未登录跳 `/login` |
-| `/settings/*` | `RequireAuth` | 未登录跳 `/login` |
+| 路径          | 守卫               | 说明                       |
+| ------------- | ------------------ | -------------------------- |
+| `/`           | 无                 | 公开欢迎页，已登录仍可访问 |
+| `/login`      | `RedirectIfAuthed` | 已登录跳 `/chat`           |
+| `/register`   | `RedirectIfAuthed` | 已登录跳 `/chat`           |
+| `/new`        | `RequireAuth`      | 未登录跳 `/login`          |
+| `/chat`       | `RequireAuth`      | 未登录跳 `/login`          |
+| `/chat/:id`   | `RequireAuth`      | 未登录跳 `/login`          |
+| `/settings/*` | `RequireAuth`      | 未登录跳 `/login`          |
 
 ---
 
 ### Settings Account 页真实化：`src/views/settings/components/SettingsAccount.tsx`
 
 **整体删除（从 DOM 中移除）：**
+
 - 硬编码的 `ORG_ID` 常量和「Organization ID」展示区块
 - 硬编码的 `SESSIONS` 数组和「Active sessions」表格区块
 
 **保留并真实化：**
+
 - 「账号信息」区块：展示 `user.username`（用户名）和 `user.nickname`（昵称），从 `useAuth()` 获取
 - 「退出登录」按钮：调用 `useAuth().logout()`，点击后跳转到 `/login`（logout 内部实现）
 
@@ -212,15 +232,15 @@ function RedirectIfAuthed({ children }) {
 
 ## 改动文件清单
 
-| 文件 | 变更类型 |
-|------|----------|
-| `src/hooks/useAuth.tsx` | 新建 |
-| `src/services/api.ts` | 修改（新增 auth 函数 + 所有接口加认证头） |
-| `src/views/auth/LoginPage.tsx` | 修改（字段 + 接入逻辑） |
-| `src/views/auth/RegisterPage.tsx` | 修改（字段 + 接入逻辑） |
-| `src/main.tsx` | 修改（AuthProvider + 路由守卫） |
-| `src/views/settings/components/SettingsAccount.tsx` | 修改（真实用户信息 + logout） |
-| `src/types/types.ts` | 修改（新增 AuthUser、AuthResponse 类型） |
+| 文件                                                | 变更类型                                  |
+| --------------------------------------------------- | ----------------------------------------- |
+| `src/hooks/useAuth.tsx`                             | 新建                                      |
+| `src/services/api.ts`                               | 修改（新增 auth 函数 + 所有接口加认证头） |
+| `src/views/auth/LoginPage.tsx`                      | 修改（字段 + 接入逻辑）                   |
+| `src/views/auth/RegisterPage.tsx`                   | 修改（字段 + 接入逻辑）                   |
+| `src/main.tsx`                                      | 修改（AuthProvider + 路由守卫）           |
+| `src/views/settings/components/SettingsAccount.tsx` | 修改（真实用户信息 + logout）             |
+| `src/types/types.ts`                                | 修改（新增 AuthUser、AuthResponse 类型）  |
 
 ---
 

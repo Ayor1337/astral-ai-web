@@ -1,10 +1,17 @@
-import type { CSSProperties } from "react";
-import { Link } from "react-router";
+import { useState, type CSSProperties } from "react";
+import { Link, useNavigate } from "react-router";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
 import { getUiThemeVars } from "@/theme/uiTheme";
 
 export default function RegisterPage() {
   const { theme } = useTheme();
+  const { register, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const pageStyle = {
     ...getUiThemeVars(theme),
@@ -12,6 +19,17 @@ export default function RegisterPage() {
     fontFamily: '"Sora", "Segoe UI", sans-serif',
     background: "var(--base-bg)",
   } as CSSProperties;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    try {
+      await register(username, nickname, password);
+      navigate("/chat");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "注册失败");
+    }
+  }
 
   return (
     <div
@@ -50,10 +68,7 @@ export default function RegisterPage() {
 
         <form
           className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            // TODO: handle register
-          }}
+          onSubmit={handleSubmit}
         >
           <div className="space-y-1.5">
             <label
@@ -67,35 +82,39 @@ export default function RegisterPage() {
               id="username"
               type="text"
               required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="Your Name"
+              placeholder="your_username"
             />
           </div>
 
           <div className="space-y-1.5">
             <label
-              htmlFor="email"
+              htmlFor="nickname"
               className="px-1 text-sm font-medium"
               style={{ color: "var(--text-secondary)" }}
             >
-              邮箱
+              昵称
             </label>
             <input
-              id="email"
-              type="email"
+              id="nickname"
+              type="text"
               required
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="name@example.com"
+              placeholder="展示名称"
             />
           </div>
 
@@ -111,6 +130,8 @@ export default function RegisterPage() {
               id="password"
               type="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
               style={{
                 background: "var(--input-bg)",
@@ -121,31 +142,16 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label
-              htmlFor="confirmPassword"
-              className="px-1 text-sm font-medium"
-              style={{ color: "var(--text-secondary)" }}
-            >
-              确认密码
-            </label>
-            <input
-              id="confirmPassword"
-              type="password"
-              required
-              className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
-              style={{
-                background: "var(--input-bg)",
-                borderColor: "var(--input-border)",
-                color: "var(--text-base)",
-              }}
-              placeholder="••••••••"
-            />
-          </div>
+          {error && (
+            <p className="text-sm" style={{ color: "#ef4444" }}>
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
-            className="mt-4 w-full rounded-full border py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--highlight)"
+            disabled={isLoading}
+            className="mt-4 w-full rounded-full border py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--highlight) disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             style={{
               background:
                 "linear-gradient(120deg, var(--btn-bg-a), var(--btn-bg-b))",
@@ -154,7 +160,7 @@ export default function RegisterPage() {
               color: "var(--btn-text)",
             }}
           >
-            注册
+            {isLoading ? "注册中…" : "注册"}
           </button>
         </form>
 

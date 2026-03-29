@@ -1,10 +1,16 @@
-import type { CSSProperties } from "react";
-import { Link } from "react-router";
+import { useState, type CSSProperties } from "react";
+import { Link, useNavigate } from "react-router";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
 import { getUiThemeVars } from "@/theme/uiTheme";
 
 export default function LoginPage() {
   const { theme } = useTheme();
+  const { login, isLoading } = useAuth();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const pageStyle = {
     ...getUiThemeVars(theme),
@@ -12,6 +18,17 @@ export default function LoginPage() {
     fontFamily: '"Sora", "Segoe UI", sans-serif',
     background: "var(--base-bg)",
   } as CSSProperties;
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    try {
+      await login(username, password);
+      navigate("/chat");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "登录失败");
+    }
+  }
 
   return (
     <div
@@ -48,32 +65,28 @@ export default function LoginPage() {
           欢迎回来
         </h1>
 
-        <form
-          className="space-y-5"
-          onSubmit={(e) => {
-            e.preventDefault();
-            // TODO: handle login
-          }}
-        >
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-1.5">
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="px-1 text-sm font-medium"
               style={{ color: "var(--text-secondary)" }}
             >
-              邮箱
+              用户名
             </label>
             <input
-              id="email"
-              type="email"
+              id="username"
+              type="text"
               required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
               style={{
                 background: "var(--input-bg)",
                 borderColor: "var(--input-border)",
                 color: "var(--text-base)",
               }}
-              placeholder="name@example.com"
+              placeholder="your_username"
             />
           </div>
 
@@ -89,6 +102,8 @@ export default function LoginPage() {
               id="password"
               type="password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:outline-none"
               style={{
                 background: "var(--input-bg)",
@@ -99,9 +114,16 @@ export default function LoginPage() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm" style={{ color: "#ef4444" }}>
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="mt-2 w-full rounded-full border py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--highlight)"
+            disabled={isLoading}
+            className="mt-2 w-full rounded-full border py-3 text-sm font-medium transition duration-200 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--highlight) disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
             style={{
               background:
                 "linear-gradient(120deg, var(--btn-bg-a), var(--btn-bg-b))",
@@ -110,7 +132,7 @@ export default function LoginPage() {
               color: "var(--btn-text)",
             }}
           >
-            登录
+            {isLoading ? "登录中…" : "登录"}
           </button>
         </form>
 
