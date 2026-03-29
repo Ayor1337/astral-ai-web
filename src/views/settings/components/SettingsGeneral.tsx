@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
 import type { Theme } from "@/theme/uiTheme";
 
 type ColorMode = "light" | "auto" | "dark";
@@ -118,6 +119,7 @@ function ColorModeCard({
 
 export default function SettingsGeneral() {
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const [notifEnabled, setNotifEnabled] = useState(false);
 
   const [colorMode, setColorMode] = useState<ColorMode>(() => {
@@ -164,13 +166,13 @@ export default function SettingsGeneral() {
         </h2>
 
         <div className="grid grid-cols-2 gap-4">
-          {/* Full name */}
+          {/* 昵称 */}
           <div className="flex flex-col gap-1.5">
             <label
               className="text-sm font-medium"
               style={{ color: "var(--text-base)" }}
             >
-              全名
+              昵称
             </label>
             <div
               className="flex items-center gap-2.5 rounded-xl px-3 py-2.5"
@@ -183,36 +185,17 @@ export default function SettingsGeneral() {
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
                 style={{ background: "var(--user-avatar-bg)" }}
               >
-                長
+                {user?.nickname?.[0] ?? "用"}
               </div>
               <input
                 type="text"
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
                 style={{ color: "var(--text-base)" }}
-                defaultValue="長崎そよ"
+                defaultValue={user?.nickname ?? ""}
               />
             </div>
           </div>
 
-          {/* Claude 应该如何称呼你 */}
-          <div className="flex flex-col gap-1.5">
-            <label
-              className="text-sm font-medium"
-              style={{ color: "var(--text-base)" }}
-            >
-              应该如何称呼你？
-            </label>
-            <input
-              type="text"
-              className="rounded-xl px-3 py-2.5 text-sm outline-none"
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-                color: "var(--text-base)",
-              }}
-              defaultValue="長崎そよ"
-            />
-          </div>
         </div>
 
         {/* Work function */}

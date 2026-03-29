@@ -319,7 +319,7 @@ export default function ChatSidebar({
             <div className="h-7 w-7 shrink-0 opacity-0" />
             <div className="flex min-w-0 flex-col">
               <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] font-medium text-(--text-base)">
-                長崎そよ
+                {user?.nickname ?? "用户"}
               </span>
               <span className="text-[0.6875rem] text-(--sidebar-section-text)">
                 Tester
@@ -344,7 +344,7 @@ export default function ChatSidebar({
           }`}
           style={{ background: "var(--user-avatar-bg)" }}
         >
-          {user?.username?.[0] ?? "用"}
+          {user?.nickname?.[0] ?? "用"}
         </div>
       </div>
     </aside>

@@ -6,6 +6,7 @@ import {
   updateConversationTitle,
 } from "@/services/api";
 import { useTheme } from "@/hooks/useTheme";
+import { useAuth } from "@/hooks/useAuth";
 import { usePreferences } from "@/hooks/usePreferences";
 import { getUiThemeVars } from "@/theme/uiTheme";
 import type { Conversation } from "@/types/types";
@@ -21,12 +22,11 @@ function getGreeting() {
 
 export default function NewChatPage() {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const { thinkingEnabled, toggleThinking, searchEnabled, toggleSearch } =
     usePreferences();
-  // exc
-  const username = "長崎そよ";
 
   useEffect(() => {
     getConversations()
@@ -103,7 +103,7 @@ export default function NewChatPage() {
               fontFamily: '"Space Grotesk", "Segoe UI", sans-serif',
             }}
           >
-            {getGreeting()}, {username}
+            {getGreeting()}, {user?.nickname ?? "用户"}
           </h1>
 
           <div className="w-full">

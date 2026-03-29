@@ -78,7 +78,7 @@ export default function ChatInput({
         <textarea
           ref={textareaRef}
           className="max-h-36 w-full resize-none overflow-y-auto border-none bg-transparent text-[0.9375rem] leading-6 text-(--text-base) outline-none placeholder:text-(--text-footer)"
-          placeholder="Reply..."
+          placeholder="回复..."
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -129,7 +129,7 @@ export default function ChatInput({
                     </svg>
                   </span>
                   <span className="text-[0.875rem] text-(--text-base)">
-                    Add files or photos
+                    添加文件或照片
                   </span>
                 </button>
 
@@ -154,7 +154,7 @@ export default function ChatInput({
                     </svg>
                   </span>
                   <span className="text-[0.875rem] text-(--text-base)">
-                    Take a screenshot
+                    截图
                   </span>
                 </button>
 
@@ -196,7 +196,7 @@ export default function ChatInput({
                         : "text-(--text-base)"
                     }`}
                   >
-                    Web search
+                    联网搜索
                   </span>
                   {(searchEnabled ?? true) && (
                     <svg
@@ -226,7 +226,7 @@ export default function ChatInput({
                 onClick={() => setModelOpen((v) => !v)}
                 aria-expanded={modelOpen}
               >
-                Minimax-M2.7{thinkingEnabled ? "\u2002Extended" : ""}
+                Minimax-M2.7{thinkingEnabled ? "\u2002Thinking" : ""}
                 <svg
                   width="10"
                   height="10"
@@ -264,7 +264,7 @@ export default function ChatInput({
                       </svg>
                     </div>
                     <p className="mt-0.5 text-[0.75rem] text-(--text-muted)">
-                      Most efficient for everyday tasks
+                      日常任务最高效
                     </p>
                   </div>
 
@@ -276,7 +276,7 @@ export default function ChatInput({
                         Extended thinking
                       </span>
                       <span className="text-[0.75rem] text-(--text-muted)">
-                        Think longer for complex tasks
+                        复杂任务深思熟虑
                       </span>
                     </div>
                     <label
@@ -306,7 +306,7 @@ export default function ChatInput({
                     type="button"
                     disabled
                   >
-                    More models
+                    更多模型
                     <svg
                       width="14"
                       height="14"
