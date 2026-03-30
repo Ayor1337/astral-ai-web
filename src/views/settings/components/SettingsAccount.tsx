@@ -53,7 +53,7 @@ export default function SettingsAccount() {
           className="text-xl font-semibold"
           style={{ color: "var(--text-primary)" }}
         >
-          Account
+          账号
         </h2>
 
         <div
@@ -73,7 +73,7 @@ export default function SettingsAccount() {
                 color: "var(--base-bg)",
               }}
             >
-              Log out
+              退出登录
             </button>
           </div>
         </div>

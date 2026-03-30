@@ -17,7 +17,7 @@ export type TimelineEntry =
 
 export function formatTime(ts: string) {
   const d = new Date(ts);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return d.toLocaleDateString("zh-CN", { weekday: "short", month: "short", day: "numeric" });
 }
 
 export function buildTraceTree(steps: TraceStep[]): TraceNode[] {

@@ -1,10 +1,21 @@
 import type { CSSProperties } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
+import { useAuth } from "./hooks/useAuth";
 import { useTheme } from "./hooks/useTheme";
 import { getUiThemeVars } from "./theme/uiTheme";
 
 export default function App() {
   const { theme } = useTheme();
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartChat = () => {
+    if (token) {
+      navigate("/chat");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const pageStyle = {
     ...getUiThemeVars(theme),
@@ -30,25 +41,6 @@ export default function App() {
         >
           ASTRAL
         </div>
-        <div className="flex items-center gap-4">
-          <Link
-            to="/login"
-            className="text-sm font-medium transition hover:opacity-80"
-          >
-            登录
-          </Link>
-          <Link
-            to="/register"
-            className="rounded-full px-5 py-2 text-sm font-medium transition"
-            style={{
-              backgroundColor: "var(--surface)",
-              color: "var(--heading)",
-              border: "1px solid var(--border)",
-            }}
-          >
-            注册
-          </Link>
-        </div>
       </header>
 
       <section className="z-10 flex flex-col items-center text-center px-4">
@@ -58,8 +50,8 @@ export default function App() {
         >
           ASTRAL AI
         </h1>
-        <Link
-          to="/chat"
+        <button
+          onClick={handleStartChat}
           className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-8 py-4 text-base font-semibold shadow-2xl transition-all hover:scale-105 hover:shadow-(--highlight)"
           style={{
             background:
@@ -82,7 +74,7 @@ export default function App() {
             />
           </svg>
           <div className="absolute inset-0 z-0 bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
-        </Link>
+        </button>
       </section>
 
       <footer
