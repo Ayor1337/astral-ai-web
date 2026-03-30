@@ -61,6 +61,22 @@ export async function getMe(): Promise<AuthUser> {
   return res.json();
 }
 
+/** 修改当前用户的用户名，返回新的 token 和用户信息 */
+export async function changeUsernameApi(
+  username: string,
+): Promise<AuthResponse> {
+  const res = await fetch(`${BASE_URL}/api/auth/change-username`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ username }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "修改用户名失败" }));
+    throw new Error((err as { detail?: string }).detail ?? "修改用户名失败");
+  }
+  return res.json();
+}
+
 /** 创建新会话，返回会话摘要信息 */
 export async function createConversation(): Promise<ConversationSummary> {
   const res = await fetch(`${BASE_URL}/api/conversations`, {

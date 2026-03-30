@@ -394,7 +394,7 @@ export default function ChatSidebar({
         >
           {/* Avatar */}
           <div
-            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-[margin] duration-300 ${
+            className={`flex size-9 shrink-0 items-center justify-center rounded-full text-base font-semibold text-white transition-[margin] duration-300 ${
               sidebarCollapsed ? "ml-0.5" : ""
             }`}
             style={{ background: "var(--user-avatar-bg)" }}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
+import { changeUsernameApi } from "@/services/api";
 import type { Theme } from "@/theme/uiTheme";
 
 type ColorMode = "light" | "auto" | "dark";
@@ -119,8 +120,33 @@ function ColorModeCard({
 
 export default function SettingsGeneral() {
   const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, updateUserAndToken } = useAuth();
   const [notifEnabled, setNotifEnabled] = useState(false);
+
+  const [username, setUsername] = useState(user?.username ?? "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const isDirty = username.trim() !== (user?.username ?? "");
+
+  function handleCancel() {
+    setUsername(user?.username ?? "");
+    setSubmitError(null);
+  }
+
+  async function handleConfirm() {
+    if (!isDirty || isSubmitting) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await changeUsernameApi(username.trim());
+      updateUserAndToken(res.access_token, res.user);
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "修改失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   const [colorMode, setColorMode] = useState<ColorMode>(() => {
     try {
@@ -196,6 +222,33 @@ export default function SettingsGeneral() {
             </div>
           </div>
 
+          {/* 用户名 */}
+          <div className="flex flex-col gap-1.5">
+            <label
+              className="text-sm font-medium"
+              style={{ color: "var(--text-base)" }}
+            >
+              用户名
+            </label>
+            <div
+              className="flex items-center rounded-xl px-3 py-2.5"
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+              }}
+            >
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setSubmitError(null);
+                }}
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+                style={{ color: "var(--text-base)" }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Work function */}
@@ -247,6 +300,41 @@ export default function SettingsGeneral() {
             placeholder="例如：我主要使用 Python 编程（不是编程初学者）"
           />
         </div>
+
+        {/* 确认 / 取消 */}
+        {isDirty && (
+          <div className="flex items-center justify-end gap-3">
+            {submitError && (
+              <span className="mr-auto text-sm" style={{ color: "#ef4444" }}>
+                {submitError}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              className="rounded-lg px-4 py-1.5 text-sm font-medium transition-opacity duration-100 hover:opacity-70 disabled:opacity-40"
+              style={{ color: "var(--text-base)" }}
+            >
+              取消
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              disabled={isSubmitting}
+              className="flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition-opacity duration-100 hover:opacity-80 disabled:opacity-60"
+              style={{
+                background: "var(--text-primary)",
+                color: "var(--base-bg)",
+              }}
+            >
+              {isSubmitting && (
+                <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              )}
+              确认
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Notifications */}

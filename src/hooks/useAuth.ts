@@ -14,8 +14,13 @@ interface AuthState {
   user: AuthUser | null;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, nickname: string, password: string) => Promise<void>;
+  register: (
+    username: string,
+    nickname: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => void;
+  updateUserAndToken: (newToken: string, newUser: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -76,7 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function register(username: string, nickname: string, password: string): Promise<void> {
+  async function register(
+    username: string,
+    nickname: string,
+    password: string,
+  ): Promise<void> {
     setIsLoading(true);
     try {
       const res = await registerApi(username, nickname, password);
@@ -97,12 +106,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = "/login";
   }
 
+  function updateUserAndToken(newToken: string, newUser: AuthUser): void {
+    localStorage.setItem("auth_token", newToken);
+    localStorage.setItem("auth_user", JSON.stringify(newUser));
+    setToken(newToken);
+    setUser(newUser);
+  }
+
   // 初始化期间渲染 null，避免路由守卫闪烁跳转
   if (isInitializing) return null;
 
   return createElement(
     AuthContext.Provider,
-    { value: { token, user, isLoading, login, register, logout } },
+    {
+      value: {
+        token,
+        user,
+        isLoading,
+        login,
+        register,
+        logout,
+        updateUserAndToken,
+      },
+    },
     children,
   );
 }
