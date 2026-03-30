@@ -94,6 +94,23 @@ const IconCustomize = () => (
   </svg>
 );
 
+const IconLogOut = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
 const NAV_ITEMS = [
   { id: "new", label: "新建聊天", icon: <IconNewChat /> },
   { id: "search", label: "搜索", icon: <IconSearch /> },
@@ -108,13 +125,15 @@ export default function ChatSidebar({
   onRenameConversation,
 }: Props) {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [chatsCollapsed, setChatsCollapsed] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameText, setRenameText] = useState("");
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!openMenuId) return;
@@ -126,6 +145,20 @@ export default function ChatSidebar({
   useEffect(() => {
     if (renamingId) renameInputRef.current?.select();
   }, [renamingId]);
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target as Node)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [profileMenuOpen]);
 
   const startRename = (conv: Conversation) => {
     setRenamingId(conv.id);
@@ -144,13 +177,13 @@ export default function ChatSidebar({
   return (
     <aside
       className={`flex shrink-0 flex-col overflow-hidden border-r border-(--sidebar-border) bg-(--sidebar-bg) transition-[width] duration-300 ease-in-out ${
-        sidebarCollapsed ? "w-14" : "w-65"
+        sidebarCollapsed ? "w-14" : "w-70"
       }`}
     >
       {/* Header */}
       <div className="relative flex h-13 shrink-0 items-center overflow-hidden">
         <div
-          className={`absolute left-0 flex w-65 items-center justify-between px-4 transition-opacity duration-300 ${
+          className={`absolute left-0 flex w-70 items-center justify-between px-4 transition-opacity duration-300 ${
             sidebarCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >
@@ -165,7 +198,7 @@ export default function ChatSidebar({
 
         <button
           className={`absolute flex h-7 w-7 items-center justify-center rounded-md text-(--sidebar-nav-text) transition-all duration-300 hover:bg-(--sidebar-hover) ${
-            sidebarCollapsed ? "left-3.5" : "left-54"
+            sidebarCollapsed ? "left-3.5" : "left-[calc(100%-44px)]"
           }`}
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           title={sidebarCollapsed ? "展开侧边栏" : "折叠侧边栏"}
@@ -209,7 +242,7 @@ export default function ChatSidebar({
       {/* Middle section — always flex-1 to push bottom bar down */}
       <div className="flex flex-1 flex-col overflow-hidden">
         <div
-          className={`flex w-65 flex-1 flex-col transition-opacity duration-300 ${
+          className={`flex w-70 flex-1 flex-col transition-opacity duration-300 ${
             sidebarCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >
@@ -309,43 +342,79 @@ export default function ChatSidebar({
       </div>
 
       {/* Bottom bar */}
-      <div className="relative flex h-13 shrink-0 items-center overflow-hidden border-t border-(--sidebar-border)">
-        <div
-          className={`absolute left-0 flex w-65 items-center justify-between px-3 transition-opacity duration-300 ${
-            sidebarCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
-          }`}
-        >
-          <div className="flex min-w-0 items-center gap-2.5">
-            <div className="h-7 w-7 shrink-0 opacity-0" />
-            <div className="flex min-w-0 flex-col">
-              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] font-medium text-(--text-base)">
-                {user?.nickname ?? "用户"}
-              </span>
-              <span className="text-[0.6875rem] text-(--sidebar-section-text)">
-                Tester
-              </span>
+      <div
+        ref={profileMenuRef}
+        className="relative h-16 shrink-0 border-t border-(--sidebar-border)"
+      >
+        {/* Profile popup menu */}
+        {profileMenuOpen && !sidebarCollapsed && (
+          <div className="absolute bottom-[calc(100%+6px)] left-2 right-2 z-200 overflow-hidden rounded-xl border border-(--surface-border) bg-(--surface-bg2) py-1 shadow-[0_8px_32px_var(--surface-shadow)]">
+            {/* User info header */}
+            <div className="px-3.5 pb-2 pt-2.5">
+              <p className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] text-(--sidebar-section-text)">
+                {user?.username ?? ""}
+              </p>
             </div>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
+            <div className="mx-1 my-1 h-px bg-(--surface-border)" />
+            {/* Menu items */}
             <button
-              className="flex h-7 w-7 items-center justify-center rounded-md text-(--sidebar-nav-text) transition-colors duration-100 hover:bg-(--sidebar-hover)"
-              title="Customize"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[0.8125rem] text-(--text-base) transition-colors duration-100 hover:bg-(--sidebar-hover)"
               type="button"
-              onClick={() => navigate("/settings/general")}
+              onClick={() => {
+                setProfileMenuOpen(false);
+                navigate("/settings/general");
+              }}
             >
               <IconCustomize />
+              <span>设置</span>
+            </button>
+            <div className="mx-1 my-1 h-px bg-(--surface-border)" />
+            <button
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-[0.8125rem] text-[#e05c5c] transition-colors duration-100 hover:bg-[rgba(224,92,92,0.1)]"
+              type="button"
+              onClick={() => {
+                setProfileMenuOpen(false);
+                logout();
+              }}
+            >
+              <IconLogOut />
+              <span>退出登录</span>
             </button>
           </div>
-        </div>
+        )}
 
-        <div
-          className={`absolute flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold text-white transition-all duration-300 ${
-            sidebarCollapsed ? "left-3.5" : "left-3"
+        {/* Clickable bottom bar */}
+        <button
+          className={`flex h-full w-full items-center gap-2.5 overflow-hidden px-3 text-left transition-colors duration-100 ${
+            !sidebarCollapsed ? "hover:bg-(--sidebar-hover)" : ""
           }`}
-          style={{ background: "var(--user-avatar-bg)" }}
+          type="button"
+          onClick={() => !sidebarCollapsed && setProfileMenuOpen((v) => !v)}
+          title={sidebarCollapsed ? (user?.nickname ?? "用户") : undefined}
         >
-          {user?.nickname?.[0] ?? "用"}
-        </div>
+          {/* Avatar */}
+          <div
+            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white transition-[margin] duration-300 ${
+              sidebarCollapsed ? "ml-0.5" : ""
+            }`}
+            style={{ background: "var(--user-avatar-bg)" }}
+          >
+            {user?.nickname?.[0] ?? "用"}
+          </div>
+          {/* User text — hidden when collapsed */}
+          <div
+            className={`flex min-w-0 flex-1 flex-col transition-opacity duration-300 ${
+              sidebarCollapsed ? "pointer-events-none opacity-0" : "opacity-100"
+            }`}
+          >
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[0.8125rem] font-medium text-(--text-base)">
+              {user?.nickname ?? "用户"}
+            </span>
+            <span className="text-[0.6875rem] text-(--sidebar-section-text)">
+              Tester
+            </span>
+          </div>
+        </button>
       </div>
     </aside>
   );

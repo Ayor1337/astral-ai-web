@@ -65,7 +65,7 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
     "--radial-a": "rgba(218, 119, 86, 0.12)",
     "--radial-b": "rgba(200, 140, 100, 0.1)",
     "--surface": "rgba(45, 40, 36, 0.6)",
-    "--surface-bg2": "rgba(55, 50, 44, 0.72)",
+    "--surface-bg2": "#30302E",
     "--surface-border": "rgba(255, 245, 230, 0.12)",
     "--surface-shadow": "rgba(10, 8, 5, 0.4)",
     "--text-base": "#eeebe6",

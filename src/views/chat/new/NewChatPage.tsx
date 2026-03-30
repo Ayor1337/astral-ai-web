@@ -1,4 +1,10 @@
-import { useState, useCallback, useEffect, type CSSProperties } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  type CSSProperties,
+  useRef,
+} from "react";
 import { useNavigate } from "react-router";
 import {
   getConversations,
@@ -6,27 +12,88 @@ import {
   updateConversationTitle,
 } from "@/services/api";
 import { useTheme } from "@/hooks/useTheme";
-import { useAuth } from "@/hooks/useAuth";
+
 import { usePreferences } from "@/hooks/usePreferences";
 import { getUiThemeVars } from "@/theme/uiTheme";
 import type { Conversation } from "@/types/types";
 import ChatSidebar from "@/views/chat/components/ChatSidebar";
 import NewPageChatInput from "./components/NewPageChatInput";
+import TypingLogo from "../components/TypingLogo";
 
 function getGreeting() {
-  const h = new Date().getHours();
-  if (h < 12) return "早上好";
-  if (h < 18) return "下午好";
-  return "晚上好";
+  const hour = new Date().getHours();
+
+  const greetings = {
+    early: [
+      "早安，指挥官。今天的星舰已就绪",
+      "新的一天从一杯咖啡开始",
+      "清晨的露珠在等你探索",
+      "起床气消散了吗？来聊聊天吧",
+    ],
+    morning: [
+      "上午好！今天想探索什么话题？",
+      "阳光正好，思路也正好",
+      "工作学习之余，也别忘了休息哦",
+      "这个时间点，适合来场思维碰撞",
+    ],
+    noon: [
+      "午休时间要来杯茶吗？",
+      "中午好！补充能量的时刻到啦",
+      "午餐后适合发会儿呆~",
+      "太阳当空照，我来陪你聊",
+    ],
+    afternoon: [
+      "下午好！困意来袭前高效一把？",
+      "下午的咖啡或茶，准备好了吗？",
+      "来聊聊下午茶的搭配吧~",
+      "午后时光，适合轻松一下",
+    ],
+    evening: [
+      "傍晚好！今天的收获如何？",
+      "夕阳西下，思绪纷飞",
+      "夜幕降临前，还有什么想聊的？",
+      "傍晚的风很舒服，来唠唠嗑~",
+    ],
+    night: [
+      "夜深了还在奋斗？注意休息哦",
+      "深夜来访者，必有有趣灵魂",
+      "月亮不睡我不睡，陪你聊到天亮",
+      "夜猫子出没！今晚想聊什么？",
+    ],
+  };
+
+  let category: keyof typeof greetings;
+  if (hour < 6) category = "night";
+  else if (hour < 9) category = "early";
+  else if (hour < 12) category = "morning";
+  else if (hour < 14) category = "noon";
+  else if (hour < 18) category = "afternoon";
+  else if (hour < 22) category = "evening";
+  else category = "night";
+
+  const list = greetings[category];
+  return list[Math.floor(Math.random() * list.length)];
 }
 
 export default function NewChatPage() {
   const { theme } = useTheme();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const { thinkingEnabled, toggleThinking, searchEnabled, toggleSearch } =
     usePreferences();
+  const [isIdleThinking, setIsIdleThinking] = useState(false);
+  const idleThinkingTimeoutRef = useRef<number | null>(null);
+
+  const handleIdleLogoClick = useCallback(() => {
+    if (idleThinkingTimeoutRef.current != null) {
+      window.clearTimeout(idleThinkingTimeoutRef.current);
+    }
+    setIsIdleThinking(true);
+    idleThinkingTimeoutRef.current = window.setTimeout(() => {
+      setIsIdleThinking(false);
+      idleThinkingTimeoutRef.current = null;
+    }, 700);
+  }, []);
 
   useEffect(() => {
     getConversations()
@@ -96,15 +163,21 @@ export default function NewChatPage() {
         style={{ background: "var(--base-bg)" }}
       >
         <div className="flex w-full max-w-180 flex-col items-center px-6 sm:px-6">
-          <h1
-            className="mb-6 text-center text-[clamp(2rem,5vw,2.75rem)] font-semibold tracking-[-0.02em]"
-            style={{
-              color: "var(--heading)",
-              fontFamily: '"Space Grotesk", "Segoe UI", sans-serif',
-            }}
-          >
-            {getGreeting()}, {user?.nickname ?? "用户"}
-          </h1>
+          <div className="flex items-center gap-4 mb-6">
+            <TypingLogo
+              state={isIdleThinking ? "thinking" : "idle"}
+              onIdleClick={handleIdleLogoClick}
+            />
+            <h1
+              className="text-center text-[clamp(1.5rem,4vw,2rem)] font-normal tracking-[-0.02em]"
+              style={{
+                color: theme === "dark" ? "#C2C0B6" : "#3D3D3A",
+                fontFamily: '"Space Grotesk", "Segoe UI", sans-serif',
+              }}
+            >
+              {getGreeting()}
+            </h1>
+          </div>
 
           <div className="w-full">
             <NewPageChatInput
