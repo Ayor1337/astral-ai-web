@@ -21,6 +21,7 @@ interface AuthState {
   ) => Promise<void>;
   logout: () => void;
   updateUserAndToken: (newToken: string, newUser: AuthUser) => void;
+  updateUser: (newUser: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -113,6 +114,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser);
   }
 
+  function updateUser(newUser: AuthUser): void {
+    localStorage.setItem("auth_user", JSON.stringify(newUser));
+    setUser(newUser);
+  }
+
   // 初始化期间渲染 null，避免路由守卫闪烁跳转
   if (isInitializing) return null;
 
@@ -127,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         updateUserAndToken,
+        updateUser,
       },
     },
     children,

@@ -113,5 +113,15 @@ export function getUiThemeVars(theme: Theme): CSSProperties {
     "--scroll-btn-border": "rgba(255, 255, 255, 0.1)",
     "--user-avatar-bg":
       "linear-gradient(135deg, var(--highlight-strong), var(--highlight))",
+    // App landing page variables
+    "--app-bg": "#141413",
+    "--app-bg-secondary": "#1a1918",
+    "--app-surface": "#242320",
+    "--app-text-primary": "#e8e6e3",
+    "--app-text-secondary": "#8a8880",
+    "--app-text-muted": "#4a4844",
+    "--app-glass-bg": "rgba(36, 35, 32, 0.6)",
+    "--app-glass-border": "rgba(255, 255, 255, 0.08)",
+    "--app-glow": "rgba(201, 100, 66, 0.15)",
   } as CSSProperties;
 }

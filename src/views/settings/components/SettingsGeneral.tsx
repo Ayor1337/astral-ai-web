@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuth } from "@/hooks/useAuth";
-import { changeUsernameApi } from "@/services/api";
+import { updateProfileApi } from "@/services/api";
 import type { Theme } from "@/theme/uiTheme";
 
 type ColorMode = "light" | "auto" | "dark";
@@ -120,17 +120,17 @@ function ColorModeCard({
 
 export default function SettingsGeneral() {
   const { theme, setTheme } = useTheme();
-  const { user, updateUserAndToken } = useAuth();
+  const { user, updateUser } = useAuth();
   const [notifEnabled, setNotifEnabled] = useState(false);
 
-  const [username, setUsername] = useState(user?.username ?? "");
+  const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const isDirty = username.trim() !== (user?.username ?? "");
+  const isDirty = nickname.trim() !== (user?.nickname ?? "");
 
   function handleCancel() {
-    setUsername(user?.username ?? "");
+    setNickname(user?.nickname ?? "");
     setSubmitError(null);
   }
 
@@ -139,8 +139,8 @@ export default function SettingsGeneral() {
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      const res = await changeUsernameApi(username.trim());
-      updateUserAndToken(res.access_token, res.user);
+      const updatedUser = await updateProfileApi(nickname.trim());
+      updateUser(updatedUser);
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "修改失败，请重试");
     } finally {
@@ -211,44 +211,21 @@ export default function SettingsGeneral() {
                 className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
                 style={{ background: "var(--user-avatar-bg)" }}
               >
-                {user?.nickname?.[0] ?? "用"}
+                {nickname[0] || user?.nickname?.[0] || "用"}
               </div>
               <input
                 type="text"
                 className="min-w-0 flex-1 bg-transparent text-sm outline-none"
                 style={{ color: "var(--text-base)" }}
-                defaultValue={user?.nickname ?? ""}
+                value={nickname}
+                onChange={(e) => {
+                  setNickname(e.target.value);
+                  setSubmitError(null);
+                }}
               />
             </div>
           </div>
 
-          {/* 用户名 */}
-          <div className="flex flex-col gap-1.5">
-            <label
-              className="text-sm font-medium"
-              style={{ color: "var(--text-base)" }}
-            >
-              用户名
-            </label>
-            <div
-              className="flex items-center rounded-xl px-3 py-2.5"
-              style={{
-                background: "var(--surface)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  setSubmitError(null);
-                }}
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                style={{ color: "var(--text-base)" }}
-              />
-            </div>
-          </div>
         </div>
 
         {/* Work function */}

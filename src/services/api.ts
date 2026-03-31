@@ -77,6 +77,20 @@ export async function changeUsernameApi(
   return res.json();
 }
 
+/** 更新当前用户昵称，不重签 JWT */
+export async function updateProfileApi(nickname: string): Promise<AuthUser> {
+  const res = await fetch(`${BASE_URL}/api/auth/profile`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ nickname }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "修改昵称失败" }));
+    throw new Error((err as { detail?: string }).detail ?? "修改昵称失败");
+  }
+  return res.json();
+}
+
 /** 创建新会话，返回会话摘要信息 */
 export async function createConversation(): Promise<ConversationSummary> {
   const res = await fetch(`${BASE_URL}/api/conversations`, {
